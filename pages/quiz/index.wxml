@@ -1,0 +1,36 @@
+<view class="page quiz-page">
+  <view wx:if="{{loading}}" class="loading">正在加载题目...</view>
+
+  <block wx:elif="{{config}}">
+    <view class="progress card">
+      <view class="progress-label">第 {{currentIndex + 1}} / {{config.questionCount}} 题</view>
+      <view class="progress-bar">
+        <view class="progress-fill" style="width: {{((currentIndex + 1) / config.questionCount) * 100}}%;"></view>
+      </view>
+    </view>
+
+    <view class="card question-card">
+      <view class="question-text">{{config.questions[currentIndex].stem}}</view>
+
+      <view class="options">
+        <view
+          wx:for="{{config.questions[currentIndex].options}}"
+          wx:key="key"
+          class="option {{answers[config.questions[currentIndex].id] === item.key ? 'option-active' : ''}}"
+          data-option="{{item.key}}"
+          bindtap="selectOption"
+        >
+          <view class="option-key">{{item.key}}</view>
+          <view class="option-text">{{item.text}}</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="action-row">
+      <view class="button-secondary nav-btn" bindtap="prevQuestion">上一题</view>
+      <view class="button-primary nav-btn" bindtap="nextQuestion">
+        {{currentIndex === config.questionCount - 1 ? (submitting ? '提交中...' : '提交答卷') : '下一题'}}
+      </view>
+    </view>
+  </block>
+</view>

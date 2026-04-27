@@ -1,0 +1,16 @@
+{
+  "name": "mbti-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "MBTI 微信小程序后端最小联调版",
+  "main": "src/server.js",
+  "scripts": {
+    "dev": "node src/server.js",
+    "start": "node src/server.js",
+    "db:init": "node src/scripts/initDb.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.1.1",
+    "express": "^5.1.0"
+  }
+}

@@ -1,0 +1,55 @@
+page {
+  background: #f6f0e8;
+  color: #1f2937;
+  font-family: "PingFang SC", "Helvetica Neue", sans-serif;
+}
+
+.page {
+  min-height: 100vh;
+  padding: 32rpx 28rpx 48rpx;
+  box-sizing: border-box;
+}
+
+.card {
+  background: #fffaf2;
+  border: 2rpx solid #e7d9c9;
+  border-radius: 28rpx;
+  box-shadow: 0 18rpx 38rpx rgba(92, 64, 51, 0.08);
+}
+
+.title {
+  font-size: 48rpx;
+  line-height: 1.2;
+  font-weight: 700;
+  color: #3d2b1f;
+}
+
+.subtitle {
+  font-size: 28rpx;
+  line-height: 1.7;
+  color: #6b5b4d;
+}
+
+.button-primary {
+  height: 92rpx;
+  border-radius: 999rpx;
+  background: linear-gradient(135deg, #c96f37, #8f4d2d);
+  color: #fff;
+  font-size: 30rpx;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.button-secondary {
+  height: 84rpx;
+  border-radius: 999rpx;
+  border: 2rpx solid #d2b89e;
+  background: #fff;
+  color: #7a523a;
+  font-size: 28rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

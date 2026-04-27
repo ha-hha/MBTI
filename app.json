@@ -1,0 +1,17 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/quiz/index",
+    "pages/report/index",
+    "pages/history/index"
+  ],
+  "window": {
+    "navigationBarTitleText": "MBTI测评",
+    "navigationBarBackgroundColor": "#f6f0e8",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#f6f0e8",
+    "backgroundTextStyle": "light"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

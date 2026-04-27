@@ -1,0 +1,49 @@
+.loading,
+.empty-state {
+  padding: 60rpx 28rpx;
+  text-align: center;
+  color: #746353;
+  font-size: 28rpx;
+}
+
+.record-card {
+  margin-bottom: 18rpx;
+  padding: 28rpx;
+}
+
+.record-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14rpx;
+}
+
+.record-title {
+  width: 78%;
+  color: #3d2b1f;
+  font-size: 30rpx;
+  font-weight: 600;
+}
+
+.record-type {
+  padding: 8rpx 16rpx;
+  border-radius: 999rpx;
+  background: #f4e5d4;
+  color: #92552d;
+  font-size: 24rpx;
+  font-weight: 700;
+}
+
+.record-meta,
+.empty-copy {
+  color: #76665a;
+  font-size: 26rpx;
+  line-height: 1.7;
+}
+
+.empty-title {
+  margin-bottom: 14rpx;
+  color: #3d2b1f;
+  font-size: 34rpx;
+  font-weight: 700;
+}

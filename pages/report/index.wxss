@@ -1,0 +1,77 @@
+.status-card,
+.header-card,
+.module-card {
+  padding: 30rpx 28rpx;
+  margin-bottom: 20rpx;
+}
+
+.status-title,
+.module-title {
+  color: #3d2b1f;
+  font-size: 36rpx;
+  font-weight: 700;
+}
+
+.status-copy {
+  margin-top: 18rpx;
+  color: #6d5b50;
+  font-size: 28rpx;
+  line-height: 1.8;
+}
+
+.action-btn {
+  margin-top: 18rpx;
+}
+
+.header-tag {
+  display: inline-block;
+  margin-bottom: 20rpx;
+  padding: 10rpx 20rpx;
+  border-radius: 999rpx;
+  background: #f6e1cb;
+  color: #9a5b30;
+  font-size: 22rpx;
+}
+
+.mbti-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 24rpx 0 16rpx;
+  padding: 14rpx 26rpx;
+  border-radius: 999rpx;
+  background: #3d2b1f;
+  color: #fff7ef;
+  font-size: 32rpx;
+  font-weight: 700;
+}
+
+.module-item {
+  margin-top: 18rpx;
+  color: #584334;
+  font-size: 28rpx;
+  line-height: 1.8;
+}
+
+.footer-card {
+  padding: 30rpx 28rpx;
+  margin-bottom: 20rpx;
+}
+
+.footer-copy {
+  color: #6d5b50;
+  font-size: 28rpx;
+  line-height: 1.9;
+}
+
+.share-btn {
+  width: 100%;
+  margin-top: 18rpx;
+  padding: 0;
+  line-height: 92rpx;
+  border: 0;
+}
+
+.share-btn::after {
+  border: 0;
+}

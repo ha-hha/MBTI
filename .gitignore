@@ -1,0 +1,13 @@
+# Dependencies
+backend/node_modules/
+
+# Runtime data
+backend/data/*.sqlite
+backend/data/*.sqlite-shm
+backend/data/*.sqlite-wal
+
+# Environment files
+backend/.env
+
+# WeChat DevTools private config
+project.private.config.json

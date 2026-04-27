@@ -1,0 +1,25 @@
+<view class="page home-page">
+  <view wx:if="{{loading}}" class="loading">正在加载测评配置...</view>
+
+  <block wx:elif="{{config}}">
+    <view class="hero card">
+      <view class="hero-tag">AI 时代人格测评</view>
+      <view class="title">{{config.themeTitle}}</view>
+      <view class="subtitle intro">{{config.startCopy}}</view>
+
+      <view class="hero-lines">
+        <view wx:for="{{heroLines}}" wx:key="*this" class="hero-line">
+          {{item}}
+        </view>
+      </view>
+
+      <view class="meta-row">
+        <view class="meta-pill">{{config.questionCount}} 道题</view>
+        <view class="meta-pill">异步生成报告</view>
+      </view>
+
+      <view class="button-primary cta" bindtap="startAssessment">开始测评</view>
+      <view class="button-secondary history-btn" bindtap="openHistory">查看历史记录</view>
+    </view>
+  </block>
+</view>

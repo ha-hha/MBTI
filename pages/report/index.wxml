@@ -1,0 +1,41 @@
+<view class="page report-page">
+  <view wx:if="{{loading}}" class="status-card card">
+    <view class="status-title">正在准备你的报告</view>
+    <view class="status-copy">系统正在异步生成《AI 时代 MBTI 价值评估报告》，请稍候。</view>
+  </view>
+
+  <view wx:elif="{{status === 'pending'}}" class="status-card card">
+    <view class="status-title">报告生成中</view>
+    <view class="status-copy">我们已经收到了你的答卷，正在整理你的 MBTI 价值评估报告。</view>
+  </view>
+
+  <view wx:elif="{{status === 'failed'}}" class="status-card card">
+    <view class="status-title">报告生成失败</view>
+    <view class="status-copy">这次没有成功拿到完整报告，你可以稍后再试一次。</view>
+    <view class="button-primary action-btn" bindtap="retry">重新获取</view>
+    <view class="button-secondary action-btn" bindtap="goHome">返回首页</view>
+  </view>
+
+  <block wx:elif="{{report}}">
+    <view class="card header-card">
+      <view class="header-tag">报告已生成</view>
+      <view class="title">{{report.themeTitle}}</view>
+      <view class="mbti-chip">{{report.mbtiType}}</view>
+      <view class="subtitle">{{report.reportTitle}}</view>
+    </view>
+
+    <view wx:for="{{report.modules}}" wx:key="key" class="card module-card">
+      <view class="module-title">{{item.title}}</view>
+      <view wx:for="{{item.items}}" wx:for-item="subItem" wx:key="*this" class="module-item">
+        ● {{subItem}}
+      </view>
+    </view>
+
+    <view wx:if="{{config && config.endCopy}}" class="card footer-card">
+      <view class="footer-copy">{{config.endCopy}}</view>
+    </view>
+
+    <button class="button-primary action-btn share-btn" open-type="share">分享测评</button>
+    <view class="button-secondary action-btn" bindtap="goHome">返回首页</view>
+  </block>
+</view>

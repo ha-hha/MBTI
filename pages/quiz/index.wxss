@@ -1,0 +1,88 @@
+.progress {
+  padding: 24rpx 28rpx;
+  margin-bottom: 24rpx;
+}
+
+.progress-label {
+  margin-bottom: 16rpx;
+  color: #7b5d48;
+  font-size: 26rpx;
+}
+
+.progress-bar {
+  height: 16rpx;
+  border-radius: 999rpx;
+  background: #f0e2d3;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 999rpx;
+  background: linear-gradient(90deg, #d58a51, #91512c);
+}
+
+.question-card {
+  padding: 34rpx 28rpx;
+}
+
+.question-text {
+  margin-bottom: 28rpx;
+  color: #35261d;
+  font-size: 36rpx;
+  line-height: 1.6;
+  font-weight: 600;
+}
+
+.option {
+  display: flex;
+  gap: 20rpx;
+  align-items: flex-start;
+  margin-bottom: 18rpx;
+  padding: 24rpx;
+  border: 2rpx solid #eadccc;
+  border-radius: 22rpx;
+  background: #fff;
+}
+
+.option-active {
+  border-color: #b96735;
+  background: #fdf1e5;
+}
+
+.option-key {
+  width: 52rpx;
+  height: 52rpx;
+  border-radius: 50%;
+  background: #f4e5d4;
+  color: #8d512d;
+  font-size: 26rpx;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.option-text {
+  color: #553f31;
+  font-size: 28rpx;
+  line-height: 1.7;
+}
+
+.action-row {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 24rpx;
+}
+
+.nav-btn {
+  flex: 1;
+}
+
+.loading {
+  padding-top: 200rpx;
+  text-align: center;
+  color: #7a6a5d;
+  font-size: 28rpx;
+}
