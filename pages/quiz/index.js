@@ -1,5 +1,24 @@
 const api = require("../../services/api");
 
+const DIMENSION_META = {
+  EI: {
+    label: "能量获取",
+    hint: "观察你更依赖外部互动，还是更习惯通过独处沉淀恢复判断力。",
+  },
+  SN: {
+    label: "信息处理",
+    hint: "观察你更相信可验证事实，还是更容易捕捉趋势、模式与可能性。",
+  },
+  TF: {
+    label: "决策方式",
+    hint: "观察你在复杂选择中更偏逻辑校验，还是更关注关系与价值影响。",
+  },
+  JP: {
+    label: "行动节奏",
+    hint: "观察你在不确定环境中更依赖明确规划，还是更擅长灵活推进。",
+  },
+};
+
 function getAssessmentId() {
   const app = getApp();
   return app.getAssessmentId();
@@ -11,19 +30,58 @@ Page({
     submitting: false,
     config: null,
     currentIndex: 0,
+    currentQuestion: null,
+    currentDimensionLabel: "",
+    currentDimensionHint: "",
+    currentAnswer: "",
     answers: {},
+    answeredCount: 0,
+    remainingCount: 0,
+    progressPercent: 0,
   },
 
   onLoad() {
     this.loadAssessment();
   },
 
+  syncViewState(overrides = {}) {
+    const config = Object.prototype.hasOwnProperty.call(overrides, "config")
+      ? overrides.config
+      : this.data.config;
+    const currentIndex = Object.prototype.hasOwnProperty.call(overrides, "currentIndex")
+      ? overrides.currentIndex
+      : this.data.currentIndex;
+    const answers = Object.prototype.hasOwnProperty.call(overrides, "answers")
+      ? overrides.answers
+      : this.data.answers;
+    const currentQuestion = config ? config.questions[currentIndex] : null;
+    const answeredCount = Object.keys(answers || {}).length;
+    const remainingCount = config ? Math.max(config.questionCount - answeredCount, 0) : 0;
+    const progressPercent = config
+      ? Math.round(((currentIndex + 1) / config.questionCount) * 100)
+      : 0;
+    const dimensionMeta = currentQuestion ? DIMENSION_META[currentQuestion.dimension] : null;
+
+    this.setData({
+      ...overrides,
+      currentQuestion,
+      currentDimensionLabel: dimensionMeta ? dimensionMeta.label : "",
+      currentDimensionHint: dimensionMeta ? dimensionMeta.hint : "",
+      currentAnswer: currentQuestion ? answers[currentQuestion.id] || "" : "",
+      answeredCount,
+      remainingCount,
+      progressPercent,
+    });
+  },
+
   async loadAssessment() {
     try {
       const config = await api.getAssessment(getAssessmentId());
-      this.setData({
+      this.syncViewState({
         config,
         loading: false,
+        currentIndex: 0,
+        answers: {},
       });
     } catch (error) {
       this.setData({ loading: false });
@@ -35,11 +93,7 @@ Page({
   },
 
   getCurrentQuestion() {
-    const { config, currentIndex } = this.data;
-    if (!config) {
-      return null;
-    }
-    return config.questions[currentIndex];
+    return this.data.currentQuestion;
   },
 
   selectOption(event) {
@@ -55,7 +109,7 @@ Page({
       [currentQuestion.id]: option,
     };
 
-    this.setData({ answers });
+    this.syncViewState({ answers });
   },
 
   nextQuestion() {
@@ -77,7 +131,7 @@ Page({
       return;
     }
 
-    this.setData({
+    this.syncViewState({
       currentIndex: this.data.currentIndex + 1,
     });
   },
@@ -87,7 +141,7 @@ Page({
       return;
     }
 
-    this.setData({
+    this.syncViewState({
       currentIndex: this.data.currentIndex - 1,
     });
   },

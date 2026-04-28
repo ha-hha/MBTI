@@ -1,66 +1,227 @@
-.home-page {
-  display: flex;
-  align-items: stretch;
-}
-
-.hero {
-  width: 100%;
-  padding: 40rpx 32rpx;
-  background:
-    radial-gradient(circle at top right, rgba(201, 111, 55, 0.18), transparent 36%),
-    linear-gradient(180deg, #fff8ef 0%, #fffdf8 100%);
-}
-
-.hero-tag {
-  display: inline-block;
-  margin-bottom: 24rpx;
-  padding: 10rpx 22rpx;
-  border-radius: 999rpx;
-  background: #f7e5cf;
-  color: #8a4c22;
-  font-size: 22rpx;
-}
-
-.intro {
-  margin-top: 20rpx;
-}
-
-.hero-lines {
-  margin-top: 28rpx;
-}
-
-.hero-line {
-  margin-bottom: 16rpx;
-  padding-left: 20rpx;
-  border-left: 6rpx solid #d0824f;
-  color: #5f4939;
-  font-size: 28rpx;
-  line-height: 1.6;
-}
-
-.meta-row {
-  display: flex;
-  gap: 16rpx;
-  margin: 28rpx 0 36rpx;
-  flex-wrap: wrap;
-}
-
-.meta-pill {
-  padding: 10rpx 20rpx;
-  border-radius: 999rpx;
-  background: #fbefe1;
-  color: #8b5e3a;
-  font-size: 24rpx;
-}
-
-.cta {
+.hero,
+.section-card {
   margin-bottom: 20rpx;
 }
 
-.loading {
-  width: 100%;
-  padding-top: 200rpx;
-  text-align: center;
-  color: #7a6a5d;
+.hero {
+  padding: 38rpx 30rpx 34rpx;
+}
+
+.hero-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+}
+
+.hero-title {
+  margin-top: 24rpx;
+}
+
+.hero-lead {
+  margin-top: 20rpx;
+  color: #174b4f;
+  font-size: 36rpx;
+  line-height: 1.5;
+  font-weight: 700;
+}
+
+.intro {
+  margin-top: 18rpx;
+}
+
+.trust-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  margin-top: 24rpx;
+}
+
+.trust-tag {
+  padding: 12rpx 18rpx;
+  border-radius: 999rpx;
+  background: rgba(240, 253, 250, 0.92);
+  border: 2rpx solid rgba(15, 118, 110, 0.08);
+  color: #0f766e;
+  font-size: 22rpx;
+  font-weight: 600;
+}
+
+.metric-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+  margin-top: 28rpx;
+}
+
+.metric-card {
+  width: calc((100% - 32rpx) / 3);
+  padding: 22rpx 18rpx;
+  border-radius: 26rpx;
+  background: linear-gradient(180deg, rgba(240, 253, 250, 0.94) 0%, rgba(255, 255, 255, 0.92) 100%);
+  border: 2rpx solid rgba(15, 118, 110, 0.08);
+}
+
+.metric-value {
+  color: #134e4a;
+  font-size: 44rpx;
+  line-height: 1;
+  font-weight: 700;
+}
+
+.metric-label {
+  margin-top: 14rpx;
+  color: #1d5d63;
+  font-size: 24rpx;
+  font-weight: 700;
+}
+
+.metric-note {
+  margin-top: 10rpx;
+  color: #668084;
+  font-size: 22rpx;
+  line-height: 1.5;
+}
+
+.story-panel {
+  margin-top: 28rpx;
+  padding: 26rpx 24rpx 22rpx;
+  border-radius: 28rpx;
+  background: linear-gradient(180deg, rgba(247, 252, 252, 1) 0%, rgba(255, 255, 255, 0.96) 100%);
+  border: 2rpx solid rgba(15, 118, 110, 0.08);
+}
+
+.story-head {
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+}
+
+.story-title {
+  color: #163b40;
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+.story-note {
+  color: #6a8185;
+  font-size: 23rpx;
+}
+
+.story-swiper {
+  height: 198rpx;
+  margin-top: 18rpx;
+}
+
+.story-slide {
+  height: 100%;
+  padding: 16rpx 4rpx 32rpx;
+}
+
+.story-index {
+  color: #14b8a6;
+  font-size: 22rpx;
+  font-weight: 700;
+  letter-spacing: 1rpx;
+}
+
+.story-copy {
+  margin-top: 16rpx;
+  color: #355b61;
   font-size: 28rpx;
+  line-height: 1.8;
+}
+
+.cta-panel {
+  margin-top: 28rpx;
+}
+
+.cta {
+  margin-bottom: 18rpx;
+}
+
+.section-card {
+  padding: 34rpx 28rpx;
+}
+
+.insight-list {
+  margin-top: 24rpx;
+}
+
+.insight-item {
+  display: flex;
+  gap: 16rpx;
+  align-items: flex-start;
+  padding: 18rpx 0;
+  border-top: 2rpx solid rgba(19, 78, 74, 0.08);
+}
+
+.insight-item:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.insight-index {
+  min-width: 48rpx;
+  color: #0369a1;
+  font-size: 24rpx;
+  font-weight: 700;
+}
+
+.insight-body {
+  flex: 1;
+}
+
+.insight-title {
+  color: #163b40;
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+.insight-copy {
+  margin-top: 10rpx;
+  color: #5e787d;
+  font-size: 26rpx;
+  line-height: 1.72;
+}
+
+.transform-grid {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 24rpx;
+}
+
+.transform-card {
+  flex: 1;
+  min-height: 220rpx;
+  padding: 24rpx 20rpx;
+  border-radius: 28rpx;
+  background: linear-gradient(180deg, rgba(239, 248, 250, 0.92) 0%, rgba(255, 255, 255, 0.96) 100%);
+  border: 2rpx solid rgba(3, 105, 161, 0.08);
+}
+
+.transform-stage {
+  color: #0f766e;
+  font-size: 22rpx;
+  font-weight: 700;
+  letter-spacing: 1rpx;
+}
+
+.transform-title {
+  margin-top: 14rpx;
+  color: #163b40;
+  font-size: 30rpx;
+  line-height: 1.4;
+  font-weight: 700;
+}
+
+.transform-copy {
+  margin-top: 12rpx;
+  color: #617a7f;
+  font-size: 24rpx;
+  line-height: 1.7;
+}
+
+.home-action {
+  margin-top: 28rpx;
 }

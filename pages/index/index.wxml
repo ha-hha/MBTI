@@ -1,25 +1,111 @@
 <view class="page home-page">
-  <view wx:if="{{loading}}" class="loading">正在加载测评配置...</view>
+  <view class="page-backdrop top"></view>
+  <view class="page-backdrop bottom"></view>
+
+  <view wx:if="{{loading}}" class="loading-card card reveal-up">
+    <view class="card-wash"></view>
+    <view class="kicker">MBTI HUMAN PREMIUM</view>
+    <view class="loading-title">正在为你准备测试入口</view>
+    <view class="loading-copy">测评配置、题库和结果说明正在同步，马上就能开始。</view>
+  </view>
+
+  <view wx:elif="{{error}}" class="loading-card card reveal-up">
+    <view class="card-wash"></view>
+    <view class="kicker">NETWORK CHECK</view>
+    <view class="loading-title">暂时没拿到测评内容</view>
+    <view class="loading-copy">请检查当前网络或后端联调状态，然后重新加载一次。</view>
+    <view class="button-primary home-action" bindtap="retryLoad">重新加载</view>
+  </view>
 
   <block wx:elif="{{config}}">
-    <view class="hero card">
-      <view class="hero-tag">AI 时代人格测评</view>
-      <view class="title">{{config.themeTitle}}</view>
-      <view class="subtitle intro">{{config.startCopy}}</view>
+    <view class="content-stack">
+      <view class="hero card reveal-up">
+        <view class="card-wash"></view>
 
-      <view class="hero-lines">
-        <view wx:for="{{heroLines}}" wx:key="*this" class="hero-line">
-          {{item}}
+        <view class="hero-top">
+          <view class="kicker">AI CAREER UPGRADE</view>
+          <view class="status-pill">
+            <view class="status-dot"></view>
+            <text>2026 职业升级版</text>
+          </view>
+        </view>
+
+        <view class="title hero-title">{{config.themeTitle}}</view>
+        <view class="hero-lead">看清你在 AI 时代最值钱的判断力、协作方式与职业升级空间。</view>
+        <view class="subtitle intro">{{config.startCopy}}</view>
+
+        <view class="trust-row">
+          <view wx:for="{{trustTags}}" wx:key="*this" class="trust-tag">{{item}}</view>
+        </view>
+
+        <view class="metric-grid">
+          <view wx:for="{{proofStats}}" wx:key="label" class="metric-card">
+            <view class="metric-value">{{item.value}}</view>
+            <view class="metric-label">{{item.label}}</view>
+            <view class="metric-note">{{item.note}}</view>
+          </view>
+        </view>
+
+        <view class="story-panel">
+          <view class="story-head">
+            <view class="story-title">为什么值得做这次测试</view>
+            <view class="story-note">信息会更直接，也更接近真实职业场景</view>
+          </view>
+
+          <swiper
+            class="story-swiper"
+            autoplay="{{canAutoPlayStories}}"
+            circular="{{canAutoPlayStories}}"
+            interval="3200"
+            duration="500"
+            indicator-dots="{{canAutoPlayStories}}"
+            indicator-color="rgba(15, 118, 110, 0.18)"
+            indicator-active-color="#0f766e"
+          >
+            <swiper-item wx:for="{{heroLines}}" wx:key="*this">
+              <view class="story-slide">
+                <view class="story-index">0{{index + 1}}</view>
+                <view class="story-copy">{{item}}</view>
+              </view>
+            </swiper-item>
+          </swiper>
+        </view>
+
+        <view class="cta-panel">
+          <view class="button-primary cta" bindtap="startAssessment">开始测试</view>
+          <view class="button-secondary" bindtap="openHistory">查看历史记录</view>
         </view>
       </view>
 
-      <view class="meta-row">
-        <view class="meta-pill">{{config.questionCount}} 道题</view>
-        <view class="meta-pill">异步生成报告</view>
+      <view class="section-card card reveal-up delay-1">
+        <view class="section-kicker">VALUE MAP</view>
+        <view class="section-heading">你会直接获得哪些信息</view>
+        <view class="section-copy">不是泛泛而谈的性格描述，而是可用于职业判断与 AI 协作的结果。</view>
+
+        <view class="insight-list">
+          <view wx:for="{{insightCards}}" wx:key="title" class="insight-item">
+            <view class="insight-index">{{item.index}}</view>
+            <view class="insight-body">
+              <view class="insight-title">{{item.title}}</view>
+              <view class="insight-copy">{{item.copy}}</view>
+            </view>
+          </view>
+        </view>
       </view>
 
-      <view class="button-primary cta" bindtap="startAssessment">开始测评</view>
-      <view class="button-secondary history-btn" bindtap="openHistory">查看历史记录</view>
+      <view class="section-card card reveal-up delay-2">
+        <view class="section-kicker">BEFORE / AFTER</view>
+        <view class="section-heading">从“知道自己像谁”到“知道自己该怎么升级”</view>
+        <view class="section-copy">这份报告的重点不是结论本身，而是帮你把结论转成行动方向。</view>
+
+        <view class="transform-grid">
+          <view wx:for="{{transformationCards}}" wx:key="stage" class="transform-card">
+            <view class="transform-stage">{{item.stage}}</view>
+            <view class="transform-title">{{item.title}}</view>
+            <view class="transform-copy">{{item.copy}}</view>
+          </view>
+        </view>
+      </view>
     </view>
   </block>
 </view>

@@ -1,18 +1,63 @@
 <view class="page history-page">
-  <view wx:if="{{loading}}" class="loading">正在加载历史记录...</view>
+  <view class="page-backdrop top"></view>
+  <view class="page-backdrop bottom"></view>
 
-  <view wx:elif="{{!items.length}}" class="empty-state card">
-    <view class="empty-title">还没有测评记录</view>
-    <view class="empty-copy">完成一次测评后，你的历史记录会出现在这里。</view>
-  </view>
-
-  <view wx:else>
-    <view wx:for="{{items}}" wx:key="recordId" class="record-card card" data-recordid="{{item.recordId}}" bindtap="openRecord">
-      <view class="record-head">
-        <view class="record-title">{{item.assessmentName}}</view>
-        <view class="record-type">{{item.mbtiType}}</view>
+  <view class="content-stack">
+    <view class="card history-header reveal-up">
+      <view class="card-wash"></view>
+      <view class="header-top">
+        <view class="kicker">HISTORY</view>
+        <view class="archive-count">{{items.length}} 份记录</view>
       </view>
-      <view class="record-meta">生成时间：{{item.createdAt}}</view>
+      <view class="title history-title">历史测评结果</view>
+      <view class="subtitle history-copy">每次生成过的 MBTI 结果都会留在这里，方便你回看和复盘。</view>
+
+      <view class="history-metrics">
+        <view class="history-metric">
+          <view class="history-metric-value">{{items.length}}</view>
+          <view class="history-metric-label">已生成报告</view>
+        </view>
+        <view class="history-metric">
+          <view class="history-metric-value">{{latestType || '--'}}</view>
+          <view class="history-metric-label">最近一次类型</view>
+        </view>
+      </view>
+    </view>
+
+    <view wx:if="{{loading}}" class="loading-card card reveal-up delay-1">
+      <view class="card-wash"></view>
+      <view class="kicker">ARCHIVE LOADING</view>
+      <view class="loading-title">正在加载历史记录</view>
+      <view class="loading-copy">请稍候，我们正在整理你已经生成的报告。</view>
+    </view>
+
+    <view wx:elif="{{!items.length}}" class="empty-state card reveal-up delay-1">
+      <view class="card-wash"></view>
+      <view class="empty-mark">00</view>
+      <view class="empty-title">还没有测评记录</view>
+      <view class="empty-copy">完成一次测试后，你的历史结果就会出现在这里。</view>
+      <view class="button-primary empty-action" bindtap="startAssessment">开始第一次测试</view>
+    </view>
+
+    <view wx:else class="record-list">
+      <view
+        wx:for="{{items}}"
+        wx:key="recordId"
+        wx:for-index="index"
+        class="record-card card reveal-up delay-1"
+        data-recordid="{{item.recordId}}"
+        bindtap="openRecord"
+      >
+        <view class="record-topline">
+          <view class="record-index">0{{index + 1}}</view>
+          <view class="record-tag">{{item.isLatest ? '最新结果' : '查看详情'}}</view>
+        </view>
+        <view class="record-head">
+          <view class="record-title">{{item.assessmentName}}</view>
+          <view class="record-type">{{item.mbtiType}}</view>
+        </view>
+        <view class="record-meta">生成时间：{{item.displayCreatedAt || item.createdAt}}</view>
+      </view>
     </view>
   </view>
 </view>

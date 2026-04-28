@@ -1,35 +1,79 @@
 <view class="page quiz-page">
-  <view wx:if="{{loading}}" class="loading">正在加载题目...</view>
+  <view class="page-backdrop top"></view>
+  <view class="page-backdrop bottom"></view>
 
-  <block wx:elif="{{config}}">
-    <view class="progress card">
-      <view class="progress-label">第 {{currentIndex + 1}} / {{config.questionCount}} 题</view>
-      <view class="progress-bar">
-        <view class="progress-fill" style="width: {{((currentIndex + 1) / config.questionCount) * 100}}%;"></view>
-      </view>
-    </view>
+  <view wx:if="{{loading}}" class="loading-card card reveal-up">
+    <view class="card-wash"></view>
+    <view class="kicker">ASSESSMENT LOADING</view>
+    <view class="loading-title">正在加载题目</view>
+    <view class="loading-copy">本轮测评的问题与进度信息正在同步，请稍候。</view>
+  </view>
 
-    <view class="card question-card">
-      <view class="question-text">{{config.questions[currentIndex].stem}}</view>
+  <block wx:elif="{{config && currentQuestion}}">
+    <view class="content-stack">
+      <view class="progress card reveal-up">
+        <view class="card-wash"></view>
+        <view class="progress-top">
+          <view>
+            <view class="kicker">PERSONAL VALUE TEST</view>
+            <view class="progress-title">第 {{currentIndex + 1}} 题</view>
+          </view>
+          <view class="progress-side">
+            <view class="progress-total">{{answeredCount}} / {{config.questionCount}} 已完成</view>
+            <view class="progress-status">{{currentAnswer ? '当前题已选择' : '等待选择'}}</view>
+          </view>
+        </view>
 
-      <view class="options">
-        <view
-          wx:for="{{config.questions[currentIndex].options}}"
-          wx:key="key"
-          class="option {{answers[config.questions[currentIndex].id] === item.key ? 'option-active' : ''}}"
-          data-option="{{item.key}}"
-          bindtap="selectOption"
-        >
-          <view class="option-key">{{item.key}}</view>
-          <view class="option-text">{{item.text}}</view>
+        <view class="progress-bar">
+          <view class="progress-fill" style="width: {{progressPercent}}%;"></view>
+        </view>
+
+        <view class="progress-foot">
+          <view class="progress-foot-copy">还剩 {{remainingCount}} 题，继续保持直觉作答会更准确。</view>
+          <view class="progress-foot-copy">{{progressPercent}}%</view>
         </view>
       </view>
-    </view>
 
-    <view class="action-row">
-      <view class="button-secondary nav-btn" bindtap="prevQuestion">上一题</view>
-      <view class="button-primary nav-btn" bindtap="nextQuestion">
-        {{currentIndex === config.questionCount - 1 ? (submitting ? '提交中...' : '提交答卷') : '下一题'}}
+      <view class="card question-card reveal-up delay-1">
+        <view class="card-wash"></view>
+        <view class="question-meta">
+          <view class="question-id">{{currentQuestion.id}}</view>
+          <view class="dimension-chip">{{currentDimensionLabel}}</view>
+        </view>
+
+        <view class="question-text">{{currentQuestion.stem}}</view>
+        <view class="question-tip">{{currentDimensionHint}}</view>
+
+        <view class="choice-guide">
+          <view class="choice-guide-title">作答建议</view>
+          <view class="choice-guide-copy">请选择更符合第一反应的一项，不必追求“标准答案”。</view>
+        </view>
+
+        <view class="options">
+          <view
+            wx:for="{{currentQuestion.options}}"
+            wx:key="key"
+            class="option {{currentAnswer === item.key ? 'option-active' : ''}}"
+            data-option="{{item.key}}"
+            bindtap="selectOption"
+          >
+            <view class="option-key">{{item.key}}</view>
+            <view class="option-body">
+              <view class="option-label">选项 {{item.key}}</view>
+              <view class="option-text">{{item.text}}</view>
+            </view>
+            <view class="option-check {{currentAnswer === item.key ? 'option-check-active' : ''}}">
+              {{currentAnswer === item.key ? '已选' : '选择'}}
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <view class="action-row reveal-up delay-2">
+        <view class="button-secondary nav-btn {{currentIndex === 0 ? 'nav-btn-disabled' : ''}}" bindtap="prevQuestion">上一题</view>
+        <view class="button-primary nav-btn" bindtap="nextQuestion">
+          {{currentIndex === config.questionCount - 1 ? (submitting ? '提交中...' : '提交答卷') : '下一题'}}
+        </view>
       </view>
     </view>
   </block>

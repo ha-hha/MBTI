@@ -11,3 +11,6 @@ backend/.env
 
 # WeChat DevTools private config
 project.private.config.json
+
+# Local Codex tooling
+.codex/

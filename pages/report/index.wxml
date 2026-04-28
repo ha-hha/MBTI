@@ -1,41 +1,153 @@
 <view class="page report-page">
-  <view wx:if="{{loading}}" class="status-card card">
-    <view class="status-title">正在准备你的报告</view>
-    <view class="status-copy">系统正在异步生成《AI 时代 MBTI 价值评估报告》，请稍候。</view>
+  <view class="page-backdrop top"></view>
+  <view class="page-backdrop bottom"></view>
+
+  <view wx:if="{{loading}}" class="status-card card reveal-up">
+    <view class="card-wash"></view>
+    <view class="status-icon">AI</view>
+    <view class="kicker">AI ANALYSIS</view>
+    <view class="status-title">正在生成专属分析</view>
+    <view class="status-copy">AI 正在分析你的答题偏好，整理人格画像、优势亮点与成长建议。</view>
   </view>
 
-  <view wx:elif="{{status === 'pending'}}" class="status-card card">
-    <view class="status-title">报告生成中</view>
-    <view class="status-copy">我们已经收到了你的答卷，正在整理你的 MBTI 价值评估报告。</view>
+  <view wx:elif="{{status === 'pending'}}" class="status-card card reveal-up">
+    <view class="card-wash"></view>
+    <view class="status-icon">...</view>
+    <view class="kicker">AI ANALYSIS</view>
+    <view class="status-title">AI 正在深度分析</view>
+    <view class="status-copy">系统正在提炼你的性格优势、协作风格与成长方向，马上为你展开结果。</view>
+    <view class="pending-tips">
+      <view class="pending-tip">通常约 1 秒完成，请稍候。</view>
+      <view class="pending-tip">分析完成后，结果会自动展开。</view>
+    </view>
   </view>
 
-  <view wx:elif="{{status === 'failed'}}" class="status-card card">
+  <view wx:elif="{{status === 'failed'}}" class="status-card card reveal-up">
+    <view class="card-wash"></view>
+    <view class="status-icon fail">!</view>
+    <view class="kicker">TRY AGAIN</view>
     <view class="status-title">报告生成失败</view>
-    <view class="status-copy">这次没有成功拿到完整报告，你可以稍后再试一次。</view>
+    <view class="status-copy">这次没有成功拿到完整报告，你可以重新获取，或者先回到首页再测一次。</view>
     <view class="button-primary action-btn" bindtap="retry">重新获取</view>
     <view class="button-secondary action-btn" bindtap="goHome">返回首页</view>
   </view>
 
   <block wx:elif="{{report}}">
-    <view class="card header-card">
-      <view class="header-tag">报告已生成</view>
-      <view class="title">{{report.themeTitle}}</view>
-      <view class="mbti-chip">{{report.mbtiType}}</view>
-      <view class="subtitle">{{report.reportTitle}}</view>
-    </view>
+    <view class="content-stack">
+      <view class="card header-card reveal-up">
+        <view class="card-wash"></view>
+        <view class="header-top">
+          <view class="kicker">RESULT OVERVIEW</view>
+          <view class="status-pill">
+            <view class="status-dot"></view>
+            <text>报告已就绪</text>
+          </view>
+        </view>
 
-    <view wx:for="{{report.modules}}" wx:key="key" class="card module-card">
-      <view class="module-title">{{item.title}}</view>
-      <view wx:for="{{item.items}}" wx:for-item="subItem" wx:key="*this" class="module-item">
-        ● {{subItem}}
+        <view class="title report-title">{{report.themeTitle}}</view>
+        <view class="header-subtitle">{{report.reportTitle}}</view>
+
+        <view wx:if="{{mbtiVisualCard}}" class="hero-visual">
+          <view class="hero-visual-intro">{{mbtiVisualCard.intro}}</view>
+          <image class="hero-visual-image" src="{{mbtiVisualCard.image}}" mode="widthFix"></image>
+        </view>
+
+        <view class="metric-row">
+          <view wx:for="{{reportMetrics}}" wx:key="label" class="metric-pill">
+            <view class="metric-pill-top">
+              <view class="metric-pill-label">{{item.label}}</view>
+              <view class="metric-pill-value">{{item.value}}</view>
+            </view>
+            <view class="metric-pill-title">{{item.title}}</view>
+            <view class="metric-pill-copy">{{item.copy}}</view>
+          </view>
+        </view>
       </view>
-    </view>
 
-    <view wx:if="{{config && config.endCopy}}" class="card footer-card">
-      <view class="footer-copy">{{config.endCopy}}</view>
-    </view>
+      <view wx:if="{{assetOverviewModule}}" class="card module-card reveal-up delay-1">
+        <view class="module-head">
+          <view class="module-index">{{assetOverviewModule.index}}</view>
+          <view class="module-title">{{assetOverviewModule.title}}</view>
+        </view>
 
-    <button class="button-primary action-btn share-btn" open-type="share">分享测评</button>
-    <view class="button-secondary action-btn" bindtap="goHome">返回首页</view>
+        <view class="module-lead">{{assetOverviewModule.lead}}</view>
+
+        <view wx:for="{{assetOverviewModule.points}}" wx:for-item="point" wx:key="*this" class="module-item">
+          <view class="module-bullet"></view>
+          <view class="module-copy">{{point}}</view>
+        </view>
+      </view>
+
+      <view wx:if="{{consultingCard}}" class="card consult-card reveal-up delay-2">
+        <view class="card-wash"></view>
+        <view class="consult-content">
+          <image class="consult-qr" src="{{consultingCard.qrCode}}" mode="aspectFill"></image>
+          <view class="consult-copy-wrap">
+            <view class="section-kicker">CAIE CONSULTANT</view>
+            <view class="consult-title">{{consultingCard.title}}</view>
+            <view class="consult-copy">{{consultingCard.copy}}</view>
+          </view>
+        </view>
+      </view>
+
+      <view wx:for="{{moduleCards}}" wx:for-item="module" wx:key="title" class="card module-card reveal-up delay-2">
+        <view class="module-head">
+          <view class="module-index">{{module.index}}</view>
+          <view class="module-title">{{module.title}}</view>
+        </view>
+
+        <view class="module-lead">{{module.lead}}</view>
+
+        <view wx:for="{{module.points}}" wx:for-item="point" wx:key="*this" class="module-item">
+          <view class="module-bullet"></view>
+          <view class="module-copy">{{point}}</view>
+        </view>
+      </view>
+
+      <view class="card path-card reveal-up delay-3">
+        <view class="card-wash"></view>
+        <view class="section-kicker">NEXT STEP</view>
+        <view class="section-heading">把结果转成下一步行动</view>
+        <view class="path-list">
+          <view wx:for="{{actionSteps}}" wx:key="title" class="path-item">
+            <view class="path-index">{{item.index}}</view>
+            <view class="path-body">
+              <view class="path-title">{{item.title}}</view>
+              <view class="path-copy">{{item.copy}}</view>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <view wx:if="{{config && config.endCopy}}" class="card footer-card reveal-up delay-3">
+        <view class="card-wash"></view>
+        <view class="section-kicker">FINAL NOTE</view>
+        <view class="footer-copy">{{config.endCopy}}</view>
+      </view>
+
+      <view wx:if="{{bottomBrandCard}}" class="card brand-card reveal-up delay-3">
+        <view class="card-wash"></view>
+        <view class="brand-grid">
+          <view class="brand-column">
+            <image class="brand-qr" src="{{bottomBrandCard.consultantQr}}" mode="aspectFill"></image>
+            <view class="brand-note">添加注册人工智能工程师 CAIE 官方顾问</view>
+          </view>
+          <view class="brand-column">
+            <image class="brand-qr" src="{{bottomBrandCard.miniProgramCode}}" mode="aspectFill"></image>
+            <view class="brand-note">{{bottomBrandCard.miniProgramCopy}}</view>
+          </view>
+        </view>
+
+        <view class="brand-logo-wrap">
+          <view class="brand-logo-shell">
+            <image class="brand-logo" src="{{bottomBrandCard.companyLogo}}" mode="aspectFit"></image>
+          </view>
+          <view class="brand-copy">{{bottomBrandCard.brandCopy}}</view>
+        </view>
+      </view>
+
+      <button class="button-primary action-btn share-btn reveal-up delay-3" open-type="share">分享这份测试</button>
+      <view class="button-secondary action-btn reveal-up delay-3" bindtap="goHome">返回首页</view>
+    </view>
   </block>
 </view>

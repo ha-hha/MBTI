@@ -1,49 +1,148 @@
-.loading,
+.history-header,
+.empty-state,
+.record-card {
+  margin-bottom: 18rpx;
+}
+
+.history-header {
+  padding: 34rpx 28rpx;
+}
+
+.header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20rpx;
+}
+
+.archive-count {
+  color: #6a8287;
+  font-size: 24rpx;
+  font-weight: 600;
+}
+
+.history-title {
+  margin-top: 22rpx;
+}
+
+.history-copy {
+  margin-top: 16rpx;
+}
+
+.history-metrics {
+  display: flex;
+  gap: 14rpx;
+  margin-top: 24rpx;
+}
+
+.history-metric {
+  flex: 1;
+  padding: 20rpx 18rpx;
+  border-radius: 24rpx;
+  background: linear-gradient(180deg, rgba(240, 253, 250, 0.92) 0%, rgba(255, 255, 255, 0.96) 100%);
+  border: 2rpx solid rgba(15, 118, 110, 0.08);
+}
+
+.history-metric-value {
+  color: #134e4a;
+  font-size: 34rpx;
+  font-weight: 700;
+}
+
+.history-metric-label {
+  margin-top: 10rpx;
+  color: #697f84;
+  font-size: 22rpx;
+}
+
 .empty-state {
-  padding: 60rpx 28rpx;
+  padding: 56rpx 28rpx;
   text-align: center;
-  color: #746353;
-  font-size: 28rpx;
+}
+
+.empty-mark {
+  color: rgba(15, 118, 110, 0.16);
+  font-size: 68rpx;
+  line-height: 1;
+  font-weight: 700;
+}
+
+.empty-title {
+  margin-top: 16rpx;
+  color: #163b40;
+  font-size: 34rpx;
+  font-weight: 700;
+}
+
+.empty-copy {
+  margin-top: 14rpx;
+  color: #627b7f;
+  font-size: 26rpx;
+  line-height: 1.78;
+}
+
+.empty-action {
+  margin-top: 24rpx;
+}
+
+.record-list {
+  display: flex;
+  flex-direction: column;
 }
 
 .record-card {
-  margin-bottom: 18rpx;
-  padding: 28rpx;
+  padding: 24rpx;
+}
+
+.record-topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.record-index {
+  color: #0369a1;
+  font-size: 22rpx;
+  font-weight: 700;
+}
+
+.record-tag {
+  padding: 10rpx 16rpx;
+  border-radius: 999rpx;
+  background: rgba(240, 253, 250, 0.92);
+  color: #0f766e;
+  font-size: 22rpx;
+  font-weight: 600;
 }
 
 .record-head {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 14rpx;
+  align-items: flex-start;
+  gap: 16rpx;
+  margin-top: 16rpx;
 }
 
 .record-title {
-  width: 78%;
-  color: #3d2b1f;
+  flex: 1;
+  color: #163b40;
   font-size: 30rpx;
-  font-weight: 600;
+  line-height: 1.58;
+  font-weight: 700;
 }
 
 .record-type {
-  padding: 8rpx 16rpx;
+  padding: 10rpx 16rpx;
   border-radius: 999rpx;
-  background: #f4e5d4;
-  color: #92552d;
+  background: linear-gradient(180deg, #ecfdfa 0%, #d8f5ef 100%);
+  color: #0f766e;
   font-size: 24rpx;
   font-weight: 700;
 }
 
-.record-meta,
-.empty-copy {
-  color: #76665a;
-  font-size: 26rpx;
-  line-height: 1.7;
-}
-
-.empty-title {
-  margin-bottom: 14rpx;
-  color: #3d2b1f;
-  font-size: 34rpx;
-  font-weight: 700;
+.record-meta {
+  margin-top: 16rpx;
+  color: #71878c;
+  font-size: 25rpx;
+  line-height: 1.72;
 }

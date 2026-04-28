@@ -4,6 +4,7 @@ const { resolveMbtiType } = require("../utils/mbtiResolver");
 const { createError } = require("../utils/errors");
 const { nowIsoString } = require("../utils/time");
 const reportService = require("./reportService");
+const reportCacheService = require("./reportCacheService");
 
 function ensureAssessmentId(assessmentId) {
   if (assessmentId !== "mbti_ai_value") {
@@ -69,9 +70,15 @@ function submitAssessment(assessmentId, bodyAssessmentId, answers, userId) {
 
   const mbtiType = resolveMbtiType(assessment.questions, answers);
   const now = nowIsoString();
+  const recordId = generateRecordId();
+  const hasCachedResult = !!reportCacheService.getCachedReport(
+    assessment,
+    recordId,
+    mbtiType
+  );
 
   const record = createRecord({
-    recordId: generateRecordId(),
+    recordId,
     assessmentId,
     userId,
     answers,
@@ -79,12 +86,18 @@ function submitAssessment(assessmentId, bodyAssessmentId, answers, userId) {
     reportStatus: "pending",
     report: null,
     llmRetryCount: 0,
+    llmProvider: null,
+    llmModel: null,
+    llmPromptVersion: null,
     submittedAt: now,
     createdAt: now,
     updatedAt: now,
   });
 
-  reportService.scheduleReportGeneration(record.recordId);
+  reportService.scheduleReportGeneration(
+    record.recordId,
+    hasCachedResult ? 1000 : undefined
+  );
 
   return {
     recordId: record.recordId,
