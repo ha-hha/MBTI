@@ -7,7 +7,8 @@
   "scripts": {
     "dev": "node src/server.js",
     "start": "node src/server.js",
-    "db:init": "node src/scripts/initDb.js"
+    "db:init": "node src/scripts/initDb.js",
+    "cache:warm": "node src/scripts/warmAllMbtiCache.js"
   },
   "dependencies": {
     "better-sqlite3": "^12.1.1",
