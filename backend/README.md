@@ -174,6 +174,36 @@ LLM 返回后，后端会：
 - 重复类型的体验会更快
 - 用户仍能看到“AI 正在分析”的过渡过程
 
+### 预热 16 型缓存
+
+如果你希望在联调前就把 `16` 种 MBTI 类型全部预生成到缓存中，可以执行：
+
+```powershell
+cd d:\1work\MBTI\backend
+npm.cmd run cache:warm
+```
+
+这个命令会：
+
+- 逐个检查 `ISTJ` 到 `ENTJ` 的缓存是否存在
+- 对缺失类型生成模板或 LLM 报告
+- 将结果写入 `mbti_report_cache`
+
+默认行为是“只补缺，不覆盖已有缓存”。
+
+如果你已经调整了模板文案或提示词，想强制刷新全部 `16` 种类型，可执行：
+
+```powershell
+cd d:\1work\MBTI\backend
+node src/scripts/warmAllMbtiCache.js --refresh
+```
+
+补充说明：
+
+- 当 `REPORT_GENERATION_MODE=template` 时，会用本地模板批量生成
+- 当 `REPORT_GENERATION_MODE=llm` 时，会优先调用模型；若开启了回退，则失败时自动落回模板
+- 预热缓存不会删除“实时生成”链路，后续未命中或需要刷新时仍可正常走实时生成
+
 ## 数据说明
 
 - 数据库默认路径：[backend/data/mbti.sqlite](/d:/1work/MBTI/backend/data/mbti.sqlite:1)

@@ -124,6 +124,15 @@ apiBaseUrl: "http://127.0.0.1:3000"
 - 当前缓存命中时约 `1 秒` 后返回结果
 - 未命中缓存时，继续走实时生成链路
 
+如果希望把 `16` 种 MBTI 报告先批量写入缓存，可在后端目录执行：
+
+```powershell
+cd d:\1work\MBTI\backend
+npm.cmd run cache:warm
+```
+
+更完整说明见 [backend/README.md](/d:/1work/MBTI/backend/README.md:1)。
+
 ## 如何判断前后端是否连通
 
 - 看 [app.js](/d:/1work/MBTI/app.js:1) 是否为 `useMock: false`
