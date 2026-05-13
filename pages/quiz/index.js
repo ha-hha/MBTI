@@ -11,7 +11,7 @@ const DIMENSION_META = {
   },
   TF: {
     label: "决策方式",
-    hint: "观察你在复杂选择中更偏逻辑校验，还是更关注关系与价值影响。",
+    hint: "观察你在复杂选择中更偏重逻辑校验，还是更关注关系与价值影响。",
   },
   JP: {
     label: "行动节奏",
@@ -22,6 +22,24 @@ const DIMENSION_META = {
 function getAssessmentId() {
   const app = getApp();
   return app.getAssessmentId();
+}
+
+function isLoggedOutLocked(app) {
+  return (
+    !!app &&
+    typeof app.isLoggedOutLocked === "function" &&
+    app.isLoggedOutLocked()
+  );
+}
+
+function getPhoneAuthInitialState() {
+  return {
+    phoneAuthVisible: false,
+    phoneAuthSubmitting: false,
+    phoneAuthError: "",
+    agreementChecked: false,
+    confirmModalVisible: false,
+  };
 }
 
 Page({
@@ -38,11 +56,14 @@ Page({
     answeredCount: 0,
     remainingCount: 0,
     progressPercent: 0,
+    ...getPhoneAuthInitialState(),
   },
 
   onLoad() {
     this.loadAssessment();
   },
+
+  noop() {},
 
   syncViewState(overrides = {}) {
     const config = Object.prototype.hasOwnProperty.call(overrides, "config")
@@ -58,7 +79,7 @@ Page({
     const answeredCount = Object.keys(answers || {}).length;
     const remainingCount = config ? Math.max(config.questionCount - answeredCount, 0) : 0;
     const progressPercent = config
-      ? Math.round(((currentIndex + 1) / config.questionCount) * 100)
+      ? Math.round((answeredCount / config.questionCount) * 100)
       : 0;
     const dimensionMeta = currentQuestion ? DIMENSION_META[currentQuestion.dimension] : null;
 
@@ -96,11 +117,37 @@ Page({
     return this.data.currentQuestion;
   },
 
+  hasCompletedAnswers() {
+    return (
+      !!this.data.config &&
+      Object.keys(this.data.answers || {}).length === this.data.config.questions.length
+    );
+  },
+
+  buildAnswerPayload() {
+    return this.data.config.questions.map((question) => ({
+      questionId: question.id,
+      selectedOption: this.data.answers[question.id],
+    }));
+  },
+
+  validateCompletedAnswers() {
+    if (!this.data.config || !this.hasCompletedAnswers()) {
+      wx.showToast({
+        title: "请完成全部题目",
+        icon: "none",
+      });
+      return false;
+    }
+
+    return true;
+  },
+
   selectOption(event) {
     const { option } = event.currentTarget.dataset;
     const currentQuestion = this.getCurrentQuestion();
 
-    if (!currentQuestion) {
+    if (!currentQuestion || this.data.submitting || this.data.phoneAuthSubmitting) {
       return;
     }
 
@@ -113,7 +160,12 @@ Page({
   },
 
   nextQuestion() {
+    if (this.data.submitting || this.data.phoneAuthSubmitting) {
+      return;
+    }
+
     const currentQuestion = this.getCurrentQuestion();
+
     if (!currentQuestion) {
       return;
     }
@@ -127,7 +179,7 @@ Page({
     }
 
     if (this.data.currentIndex >= this.data.config.questions.length - 1) {
-      this.submitAnswers();
+      this.handleGenerateReport();
       return;
     }
 
@@ -137,7 +189,7 @@ Page({
   },
 
   prevQuestion() {
-    if (this.data.currentIndex === 0) {
+    if (this.data.submitting || this.data.phoneAuthSubmitting || this.data.currentIndex === 0) {
       return;
     }
 
@@ -146,33 +198,119 @@ Page({
     });
   },
 
-  async submitAnswers() {
-    if (this.data.submitting) {
+  showPhoneAuthModal() {
+    this.setData({
+      ...getPhoneAuthInitialState(),
+      phoneAuthVisible: true,
+    });
+  },
+
+  closePhoneAuthModal() {
+    if (this.data.phoneAuthSubmitting || this.data.submitting) {
       return;
     }
 
-    const answerEntries = Object.entries(this.data.answers);
+    this.setData({
+      ...getPhoneAuthInitialState(),
+    });
+  },
 
-    if (answerEntries.length !== this.data.config.questions.length) {
+  toggleAgreement() {
+    if (this.data.phoneAuthSubmitting) {
+      return;
+    }
+
+    this.setData({
+      agreementChecked: !this.data.agreementChecked,
+      phoneAuthError: "",
+    });
+  },
+
+  handleLoginClick() {
+    if (this.data.phoneAuthSubmitting || this.data.submitting) {
+      return;
+    }
+
+    if (this.data.agreementChecked) {
+      return;
+    }
+
+    this.setData({
+      confirmModalVisible: true,
+      phoneAuthError: "",
+    });
+  },
+
+  closeConfirmModal() {
+    if (this.data.phoneAuthSubmitting) {
+      return;
+    }
+
+    this.setData({
+      confirmModalVisible: false,
+    });
+  },
+
+  markAgreementAccepted() {
+    if (!this.data.agreementChecked) {
+      this.setData({
+        agreementChecked: true,
+      });
+    }
+  },
+
+  openPrivacyGuide() {
+    wx.navigateTo({
+      url: "/pages/privacy/index",
+    });
+  },
+
+  async handleGenerateReport() {
+    if (!this.validateCompletedAnswers() || this.data.submitting || this.data.phoneAuthSubmitting) {
+      return;
+    }
+
+    const app = getApp();
+
+    if (!app || typeof app.ensurePhoneBound !== "function") {
+      await this.submitAnswers();
+      return;
+    }
+
+    if (isLoggedOutLocked(app)) {
+      this.showPhoneAuthModal();
+      return;
+    }
+
+    try {
+      const phoneBound = await app.ensurePhoneBound();
+
+      if (phoneBound) {
+        await this.submitAnswers();
+        return;
+      }
+
+      this.showPhoneAuthModal();
+    } catch (error) {
       wx.showToast({
-        title: "请完成全部题目",
+        title: "完成手机号授权后即可生成报告",
         icon: "none",
       });
+    }
+  },
+
+  async submitAnswers() {
+    if (!this.validateCompletedAnswers() || this.data.submitting) {
       return;
     }
 
     this.setData({ submitting: true });
 
     try {
-      const payload = this.data.config.questions.map((question) => ({
-        questionId: question.id,
-        selectedOption: this.data.answers[question.id],
-      }));
-
-      const result = await api.submitAssessment(getAssessmentId(), payload);
+      const result = await api.submitAssessment(getAssessmentId(), this.buildAnswerPayload());
 
       wx.redirectTo({
-        url: `/pages/report/index?recordId=${result.recordId}`,
+        url: `/package-report/pages/report/index?recordId=${result.recordId}`,
       });
     } catch (error) {
       wx.showToast({
@@ -180,6 +318,49 @@ Page({
         icon: "none",
       });
       this.setData({ submitting: false });
+    }
+  },
+
+  async onGetPhoneNumber(event) {
+    const detail = event.detail || {};
+    const errMsg = detail.errMsg || "";
+    const phoneCode = detail.code || "";
+
+    if (errMsg.indexOf(":ok") === -1 || !phoneCode) {
+      this.setData({
+        phoneAuthSubmitting: false,
+        confirmModalVisible: false,
+        phoneAuthError: "你已取消手机号授权，当前答题内容已保留，可稍后继续生成报告",
+      });
+      return;
+    }
+
+    this.setData({
+      phoneAuthSubmitting: true,
+      phoneAuthError: "",
+      confirmModalVisible: false,
+      agreementChecked: true,
+    });
+
+    try {
+      const app = getApp();
+      await app.bindPhoneNumber(phoneCode);
+      this.setData({
+        ...getPhoneAuthInitialState(),
+      });
+      await this.submitAnswers();
+    } catch (error) {
+      let message = "手机号绑定失败，请稍后重试";
+
+      if (error && error.code === "PHONE_NUMBER_ALREADY_BOUND") {
+        message = "该手机号已绑定其他账号，请更换手机号或联系管理员处理";
+      }
+
+      this.setData({
+        phoneAuthSubmitting: false,
+        phoneAuthError: message,
+        confirmModalVisible: false,
+      });
     }
   },
 });

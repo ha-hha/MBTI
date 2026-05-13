@@ -1,8 +1,8 @@
-const env = require("../config/env");
+const authService = require("../services/authService");
 const reportService = require("../services/reportService");
 
 function getUserId(req) {
-  return req.headers["x-user-id"] || env.defaultUserId;
+  return authService.resolveUserIdFromHeaders(req.headers);
 }
 
 function getReport(req, res, next) {

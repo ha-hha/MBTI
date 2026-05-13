@@ -2,12 +2,33 @@
 backend/node_modules/
 
 # Runtime data
-backend/data/*.sqlite
-backend/data/*.sqlite-shm
-backend/data/*.sqlite-wal
+backend/data/*
+!backend/data/.gitkeep
 
 # Environment files
 backend/.env
+
+# Backups
+backups/
+backend/backups/
+
+# Logs
+*.log
+logs/
+backend/logs/
+
+# Databases
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+*.db
+
+# Certificates and keys
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
 
 # WeChat DevTools private config
 project.private.config.json

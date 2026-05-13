@@ -24,6 +24,11 @@ Page({
     proofStats: [],
     insightCards: [],
     transformationCards: [],
+    phoneAuthVisible: false,
+    phoneAuthSubmitting: false,
+    phoneAuthError: "",
+    agreementChecked: false,
+    confirmModalVisible: false,
   },
 
   onLoad() {
@@ -38,7 +43,7 @@ Page({
     return {
       heroLines,
       canAutoPlayStories: heroLines.length > 1,
-      trustTags: ["AI 协同定位", "职业升级建议", "可分享复盘"],
+      trustTags: ["AI 协同定位", "职业升级建议", "支持分享传播"],
       proofStats: [
         {
           value: `${config.questionCount}`,
@@ -115,10 +120,125 @@ Page({
     this.loadAssessment();
   },
 
-  startAssessment() {
+  noop() {},
+
+  showPhoneAuthModal() {
+    this.setData({
+      phoneAuthVisible: true,
+      phoneAuthSubmitting: false,
+      phoneAuthError: "",
+      agreementChecked: false,
+      confirmModalVisible: false,
+    });
+  },
+
+  async startAssessment() {
+    this.navigateToQuiz();
+  },
+
+  navigateToQuiz() {
     wx.navigateTo({
       url: "/pages/quiz/index",
     });
+  },
+
+  closePhoneAuthModal() {
+    this.setData({
+      phoneAuthVisible: false,
+      phoneAuthSubmitting: false,
+      phoneAuthError: "",
+      agreementChecked: false,
+      confirmModalVisible: false,
+    });
+  },
+
+  toggleAgreement() {
+    this.setData({
+      agreementChecked: !this.data.agreementChecked,
+      phoneAuthError: "",
+    });
+  },
+
+  handleLoginClick() {
+    if (this.data.phoneAuthSubmitting) {
+      return;
+    }
+
+    if (this.data.agreementChecked) {
+      return;
+    }
+
+    this.setData({
+      confirmModalVisible: true,
+      phoneAuthError: "",
+    });
+  },
+
+  closeConfirmModal() {
+    this.setData({
+      confirmModalVisible: false,
+    });
+  },
+
+  markAgreementAccepted() {
+    if (!this.data.agreementChecked) {
+      this.setData({
+        agreementChecked: true,
+      });
+    }
+  },
+
+  openPrivacyGuide() {
+    wx.navigateTo({
+      url: "/pages/privacy/index",
+    });
+  },
+
+  async onGetPhoneNumber(event) {
+    const detail = event.detail || {};
+    const errMsg = detail.errMsg || "";
+    const phoneCode = detail.code || "";
+
+    if (errMsg.indexOf(":ok") === -1 || !phoneCode) {
+      this.setData({
+        phoneAuthSubmitting: false,
+        confirmModalVisible: false,
+        phoneAuthError: "你已取消手机号授权，暂时无法开始测评。",
+      });
+      return;
+    }
+
+    this.setData({
+      phoneAuthSubmitting: true,
+      phoneAuthError: "",
+      confirmModalVisible: false,
+      agreementChecked: true,
+    });
+
+    try {
+      const app = getApp();
+      await app.bindPhoneNumber(phoneCode);
+      this.setData({
+        phoneAuthVisible: false,
+        phoneAuthSubmitting: false,
+        phoneAuthError: "",
+        confirmModalVisible: false,
+        agreementChecked: false,
+      });
+      this.navigateToQuiz();
+    } catch (error) {
+      let message = "手机号绑定失败，请稍后重试。";
+
+      if (error && error.code === "PHONE_NUMBER_ALREADY_BOUND") {
+        message = "该手机号已绑定其他账号，请更换手机号或联系管理员处理。";
+      }
+
+      this.setData({
+        phoneAuthSubmitting: false,
+        phoneAuthError: message,
+        confirmModalVisible: false,
+      });
+    }
   },
 
   openHistory() {

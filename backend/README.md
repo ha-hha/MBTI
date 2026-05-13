@@ -1,22 +1,19 @@
 # MBTI Backend
 
-这是 MBTI 微信小程序的本地联调后端，负责提供：
+这是 MBTI 微信小程序的后端服务，当前已用于正式环境，负责测评配置、用户登录、手机号绑定、答卷提交、报告生成、历史记录查询，以及浏览器运营后台。
 
-- 测评配置接口
-- 提交答卷接口
-- 报告查询接口
-- 历史记录接口
-- 模板 / LLM 两种报告生成模式
-- 按 `MBTI 类型` 缓存报告
+## 当前能力
 
-## 提供的接口
-
-- `GET /assessment/:id`
-- `POST /assessment/:id/submit`
-- `GET /report/:recordId`
-- `GET /assessment/:id/records`
-
-接口协议以 [MBTI_backend_api_v1.md](/d:/1work/MBTI/MBTI_backend_api_v1.md:1) 为准。
+- 微信 `wx.login` 登录
+- 微信手机号绑定
+- 用户会话管理
+- 测评配置读取
+- 答卷提交与 MBTI 计算
+- 报告查询
+- 历史记录查询
+- 模板报告 / LLM 报告
+- 16 型 MBTI 报告缓存预热
+- 运营后台：管理员登录、报告列表、报告详情、趋势统计
 
 ## 技术栈
 
@@ -24,8 +21,39 @@
 - Express
 - SQLite
 - `better-sqlite3`
+- PM2
+- Nginx
 
-## 快速启动
+## 主要路由
+
+用户相关：
+
+- `POST /auth/wx-login`
+- `GET /auth/me`
+- `POST /auth/wx-phone`
+- `POST /auth/logout`
+
+业务相关：
+
+- `GET /assessment/:id`
+- `POST /assessment/:id/submit`
+- `GET /assessment/:id/records`
+- `GET /report/:recordId`
+- `GET /health`
+
+后台相关：
+
+- `GET /admin/login`
+- `GET /admin/reports`
+- `GET /admin/reports/:recordId`
+- `POST /admin/api/login`
+- `POST /admin/api/logout`
+- `GET /admin/api/me`
+- `GET /admin/api/reports/overview`
+- `GET /admin/api/reports`
+- `GET /admin/api/reports/:recordId`
+
+## 本地启动
 
 1. 进入后端目录
 
@@ -57,23 +85,34 @@ npm.cmd run dev
 http://127.0.0.1:3000
 ```
 
-如果 PowerShell 拦截 `npm`，优先使用 `npm.cmd`。
-
 ## 环境变量
 
-参考 [backend/.env.example](/d:/1work/MBTI/backend/.env.example:1)：
+请以 [backend/.env.example](/abs/d:/1work/MBTI/backend/.env.example:1) 为模板创建 `backend/.env`。
+
+常用字段：
 
 ```env
+HOST=127.0.0.1
 PORT=3000
-DB_PATH=./data/mbti.sqlite
-REPORT_DELAY_MS=1800
-DEFAULT_USER_ID=demo-user
+DB_PATH=/opt/mbti/backend/data/mbti.sqlite
+REPORT_DELAY_MS=1200
 REPORT_GENERATION_MODE=template
+
+WECHAT_APP_ID=
+WECHAT_APP_SECRET=
+SESSION_TOKEN_TTL_DAYS=30
+WECHAT_API_TIMEOUT_MS=8000
+
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD_HASH=
+ADMIN_SESSION_SECRET=
+ADMIN_SESSION_TTL_DAYS=7
+
 LLM_PROVIDER=openai-compatible
 LLM_BASE_URL=
 LLM_API_KEY=
 LLM_MODEL=
-LLM_TIMEOUT_MS=15000
+LLM_TIMEOUT_MS=3000
 LLM_MAX_RETRIES=1
 LLM_TEMPERATURE=0.8
 LLM_PROMPT_VERSION=v1
@@ -81,47 +120,70 @@ LLM_FALLBACK_TO_TEMPLATE=true
 LLM_SYSTEM_PROMPT_PATH=./prompts/report-system-prompt.md
 ```
 
-字段说明：
+重点说明：
 
-- `PORT`：服务端口
-- `DB_PATH`：SQLite 文件路径
-- `REPORT_DELAY_MS`：普通实时生成链路的延迟
-- `DEFAULT_USER_ID`：未显式传用户头时的兜底用户
+- `DB_PATH`：SQLite 数据库路径
 - `REPORT_GENERATION_MODE`：`template` 或 `llm`
-- `LLM_PROVIDER`：当前使用的模型提供方类型
-- `LLM_BASE_URL` / `LLM_API_KEY` / `LLM_MODEL`：OpenAI 兼容接口配置
-- `LLM_TIMEOUT_MS`：单次模型请求超时
-- `LLM_MAX_RETRIES`：模型请求重试次数
-- `LLM_FALLBACK_TO_TEMPLATE`：LLM 失败时是否回退本地模板
-- `LLM_SYSTEM_PROMPT_PATH`：系统提示词文件路径
+- `WECHAT_APP_ID` / `WECHAT_APP_SECRET`：微信登录与手机号能力所需
+- `ADMIN_USERNAME` / `ADMIN_PASSWORD_HASH` / `ADMIN_SESSION_SECRET`：运营后台登录配置
+- `LLM_TIMEOUT_MS`：模型超时，当前建议控制在较低值
 
-## 与小程序联调
+注意：
 
-在小程序 [app.js](/d:/1work/MBTI/app.js:1) 中配置：
+- `backend/.env` 不要提交到 GitHub
+- `WECHAT_APP_SECRET`、`LLM_API_KEY`、后台密钥都属于敏感信息
 
-```js
-globalData: {
-  assessmentId: "mbti_ai_value",
-  apiBaseUrl: "http://127.0.0.1:3000",
-  useMock: false,
-  userId: "demo-user",
-  requestHeaders: {
-    "x-user-id": "demo-user",
-  },
-}
+## 当前正式流程
+
+当前前端主流程已经调整为：
+
+1. 用户先完成 20 题作答
+2. 点击生成报告时，再触发手机号授权
+3. 授权成功后，前端才调用 `POST /assessment/:id/submit`
+4. 后端生成记录并进入 `pending`
+5. 报告生成完成后返回 `ready`
+
+这意味着：
+
+- `GET /assessment/:id` 必须支持匿名访问
+- 提交、历史记录、报告查询仍依赖登录态
+
+## 登录与手机号绑定
+
+### 1. 微信登录
+
+前端调用 `wx.login()` 后，将 `code` 传给：
+
+```txt
+POST /auth/wx-login
 ```
 
-说明：
+成功后返回会话信息，后续请求通过：
 
-- 当前后端通过 `x-user-id` 区分用户
-- 前端提交后，报告会先进入 `pending`
-- 然后转为 `ready`
+```txt
+x-session-token: <sessionToken>
+```
+
+### 2. 手机号绑定
+
+前端获取 `getPhoneNumber` 返回的 `code` 后，调用：
+
+```txt
+POST /auth/wx-phone
+```
+
+手机号首次绑定成功后：
+
+- `users.phone_number` 写入
+- `users.phone_bound_at` 固定为首次绑定时间
+
+后续同一用户重复授权手机号时，不会覆盖首次绑定时间。
 
 ## 报告生成模式
 
-### 1. template
+### template
 
-使用本地模板直接生成报告。
+首发稳定模式，默认推荐：
 
 ```env
 REPORT_GENERATION_MODE=template
@@ -129,13 +191,13 @@ REPORT_GENERATION_MODE=template
 
 适合：
 
-- 本地开发
-- 无外网环境
-- LLM 不稳定时兜底
+- 正式环境稳定上线
+- 不依赖外部模型服务
+- 低延迟返回
 
-### 2. llm
+### llm
 
-调用 OpenAI 兼容接口生成报告。
+需要配置 OpenAI 兼容接口：
 
 ```env
 REPORT_GENERATION_MODE=llm
@@ -145,97 +207,106 @@ LLM_API_KEY=your_api_key
 LLM_MODEL=your_model_name
 ```
 
-提示词文件默认在：
+当前如果 LLM 失败，可根据配置回退模板。
 
-- [backend/prompts/report-system-prompt.md](/d:/1work/MBTI/backend/prompts/report-system-prompt.md:1)
+## MBTI 缓存
 
-LLM 返回后，后端会：
+后端支持按 `assessmentId + mbtiType` 缓存报告内容。
 
-1. 组合提示词
-2. 请求模型
-3. 解析返回内容
-4. 校验报告结构
-5. 写入记录
-6. 失败时按配置决定是否回退模板
+缓存命中时：
 
-## MBTI 类型缓存
-
-后端已经支持按 `assessmentId + mbtiType` 缓存报告：
-
-- 首次出现某个 MBTI 类型时，走实时生成
-- 生成成功后写入缓存
-- 后续相同类型请求优先命中缓存
-- 命中缓存时不会立刻直返，仍会先经历一次短暂 `pending`
-- 当前缓存命中时约 `1 秒` 后转为 `ready`
-
-这意味着：
-
-- 真实生成链路还在，没被删掉
-- 重复类型的体验会更快
-- 用户仍能看到“AI 正在分析”的过渡过程
+- 仍会经历一次短暂 `pending`
+- 然后快速转为 `ready`
 
 ### 预热 16 型缓存
-
-如果你希望在联调前就把 `16` 种 MBTI 类型全部预生成到缓存中，可以执行：
 
 ```powershell
 cd d:\1work\MBTI\backend
 npm.cmd run cache:warm
 ```
 
-这个命令会：
+Linux 服务器上：
 
-- 逐个检查 `ISTJ` 到 `ENTJ` 的缓存是否存在
-- 对缺失类型生成模板或 LLM 报告
-- 将结果写入 `mbti_report_cache`
-
-默认行为是“只补缺，不覆盖已有缓存”。
-
-如果你已经调整了模板文案或提示词，想强制刷新全部 `16` 种类型，可执行：
-
-```powershell
-cd d:\1work\MBTI\backend
-node src/scripts/warmAllMbtiCache.js --refresh
+```bash
+cd /opt/mbti/backend
+npm run cache:warm
 ```
 
-补充说明：
+## 运营后台
 
-- 当 `REPORT_GENERATION_MODE=template` 时，会用本地模板批量生成
-- 当 `REPORT_GENERATION_MODE=llm` 时，会优先调用模型；若开启了回退，则失败时自动落回模板
-- 预热缓存不会删除“实时生成”链路，后续未命中或需要刷新时仍可正常走实时生成
+当前后台为同服务内嵌页面，浏览器直接访问：
 
-## 数据说明
+- 登录页：`https://mbti.pinggu.com/admin/login`
+- 列表页：`https://mbti.pinggu.com/admin/reports`
 
-- 数据库默认路径：[backend/data/mbti.sqlite](/d:/1work/MBTI/backend/data/mbti.sqlite:1)
-- 测评配置来源：[utils/assessment-config.js](/d:/1work/MBTI/utils/assessment-config.js:1)
-- 模板报告生成来源：[utils/report-generator.js](/d:/1work/MBTI/utils/report-generator.js:1)
+字段口径：
 
-服务启动时会自动：
+- 一次测评一行
+- `ready = 已完成`
+- `pending / failed = 未完成`
+- “已绑定手机号”表示该用户已完成手机号绑定
+- “是否首测”表示该条记录是否为该用户第一条测评记录
 
-- 建表
-- 补齐新增字段
-- 写入默认测评配置
-- 预热历史 `ready` 记录形成的 MBTI 缓存
+## 数据位置
 
-## 如何确认后端可用
+- 数据库：`backend/data/mbti.sqlite`
+- 初始化脚本：`backend/src/scripts/initDb.js`
+- 缓存预热脚本：`backend/src/scripts/warmAllMbtiCache.js`
+- PM2 配置：`backend/ecosystem.config.cjs`
+- Nginx 配置模板：`backend/deploy/nginx/mbti.pinggu.com.conf`
+- Ubuntu 初始化脚本：`backend/deploy/setup-ubuntu.sh`
+- SQLite 备份脚本：`backend/deploy/backup-sqlite.sh`
 
-直接访问：
+## 生产部署
+
+当前正式部署架构：
+
+- 域名：`https://mbti.pinggu.com`
+- Nginx 反向代理
+- Node.js 服务监听 `127.0.0.1:3000`
+- PM2 进程名：`mbti-backend`
+- SQLite 单机部署
+
+常见部署目录：
+
+```txt
+/opt/mbti/backend
+```
+
+### 更新代码后重启
+
+```bash
+cd /opt/mbti/backend
+npm install --omit=dev
+pm2 restart mbti-backend
+pm2 save
+curl http://127.0.0.1:3000/health
+```
+
+## 联调与排查
+
+确认服务可用：
+
+```txt
+GET http://127.0.0.1:3000/health
+```
+
+或：
 
 ```txt
 GET http://127.0.0.1:3000/assessment/mbti_ai_value
 ```
 
-如果能返回测评配置 JSON，说明服务已经启动成功。
+如果报告生成异常，优先检查：
 
-也可以从小程序侧验证：
+- `.env` 是否正确
+- 微信 `AppID / AppSecret` 是否匹配
+- 当前是否走 `template` 还是 `llm`
+- PM2 日志与 Nginx 日志
 
-1. 首页能拉起测评配置
-2. 提交后拿到 `recordId`
-3. 报告页从 `pending` 进入 `ready`
-4. 历史页出现新记录
+## 安全提醒
 
-## 微信小程序相关注意事项
-
-- 开发者工具里可直接请求本机 `127.0.0.1`
-- 真机联调时通常要改成局域网 IP 或可访问的 `https` 域名
-- 正式环境不建议继续使用 `x-user-id` 作为生产鉴权方案
+- 不要提交 `backend/.env`
+- 不要提交 `backend/data/mbti.sqlite`
+- 不要提交任何服务器密码、证书、API Key
+- 若密钥曾在聊天、截图或仓库里暴露，应立即轮换

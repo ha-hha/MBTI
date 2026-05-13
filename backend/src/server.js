@@ -10,6 +10,6 @@ warmCacheFromReadyRecords("mbti_ai_value");
 
 const app = createApp();
 
-app.listen(env.port, () => {
-  console.log(`MBTI backend listening on http://127.0.0.1:${env.port}`);
+app.listen(env.port, env.host, () => {
+  console.log(`MBTI backend listening on http://${env.host}:${env.port}`);
 });

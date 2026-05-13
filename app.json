@@ -1,9 +1,18 @@
 {
   "pages": [
     "pages/index/index",
+    "pages/privacy/index",
+    "pages/share/index",
     "pages/quiz/index",
-    "pages/report/index",
     "pages/history/index"
+  ],
+  "subpackages": [
+    {
+      "root": "package-report",
+      "pages": [
+        "pages/report/index"
+      ]
+    }
   ],
   "window": {
     "navigationBarTitleText": "MBTI测评",

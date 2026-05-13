@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>登录</title>
+  <style>
+    /* ========== Reset & Base ========== */
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    :root {
+      --brand: #07C160;
+      --brand-dark: #06AD56;
+      --text-primary: #1a1a1a;
+      --text-secondary: #888;
+      --text-link: #576B95;
+      --bg: #f6f6f6;
+      --white: #ffffff;
+      --border: rgba(0, 0, 0, 0.05);
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04);
+      --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+      --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
+      --shadow-btn: 0 2px 8px rgba(7, 193, 96, 0.25);
+      --radius-sm: 6px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 20px;
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overflow: hidden;
+    }
+
+    /* ========== Simulated Background Page ========== */
+    .bg-page {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(160deg, #e8f5e9 0%, #f6f6f6 40%, #e3f2fd 100%);
+      z-index: 0;
+    }
+
+    .bg-page-content {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      opacity: 0.15;
+      pointer-events: none;
+    }
+
+    .bg-page-content svg {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 12px;
+    }
+
+    .bg-page-content p {
+      font-size: 16px;
+      color: var(--text-primary);
+      letter-spacing: 1px;
+    }
+
+    /* ========== Login Popup Overlay ========== */
+    .login-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 28px;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+    }
+
+    .login-overlay.visible {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    /* ========== Login Popup Card ========== */
+    .login-card {
+      width: 100%;
+      max-width: 320px;
+      background: var(--white);
+      border-radius: var(--radius-xl);
+      padding: 36px 28px 32px;
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      transform: scale(0.88) translateY(20px);
+      opacity: 0;
+      transition: all 0.35s cubic-bezier(0.34, 1.4, 0.64, 1);
+    }
+
+    .login-overlay.visible .login-card {
+      transform: scale(1) translateY(0);
+      opacity: 1;
+    }
+
+    /* ========== Close Button ========== */
+    .login-close {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s ease;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    .login-close:active {
+      background: rgba(0, 0, 0, 0.06);
+    }
+
+    .login-close svg {
+      width: 16px;
+      height: 16px;
+      color: #bbb;
+    }
+
+    /* ========== Card Header ========== */
+    .card-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 32px;
+    }
+
+    .card-avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 14px;
+      box-shadow: 0 2px 8px rgba(7, 193, 96, 0.15);
+    }
+
+    .card-avatar svg {
+      width: 28px;
+      height: 28px;
+    }
+
+    .card-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-primary);
+      letter-spacing: 0.3px;
+    }
+
+    .card-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    /* ========== Agreement Row ========== */
+    .agreement-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 20px;
+      width: 100%;
+      padding: 0 4px;
+    }
+
+    .checkbox-wrapper {
+      flex-shrink: 0;
+      width: 20px;
+      height: 20px;
+      margin-top: 1px;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .checkbox-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 1.5px solid #d1d1d6;
+      background: var(--white);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .checkbox-icon::after {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: var(--brand);
+      transform: scale(0);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .checkbox-icon svg {
+      width: 10px;
+      height: 10px;
+      position: relative;
+      z-index: 1;
+      opacity: 0;
+      transform: scale(0.5);
+      transition: all 0.2s ease 0.05s;
+    }
+
+    .checkbox-wrapper.checked .checkbox-icon {
+      border-color: var(--brand);
+    }
+
+    .checkbox-wrapper.checked .checkbox-icon::after {
+      transform: scale(1);
+      opacity: 1;
+    }
+
+    .checkbox-wrapper.checked .checkbox-icon svg {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .agreement-text {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    .agreement-link {
+      color: var(--text-link);
+      text-decoration: none;
+      font-size: 13px;
+      position: relative;
+    }
+
+    .agreement-link::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: var(--text-link);
+      opacity: 0.3;
+    }
+
+    .agreement-link:active {
+      opacity: 0.7;
+    }
+
+    /* ========== Login Button ========== */
+    .login-btn {
+      width: 100%;
+      height: 48px;
+      border: none;
+      border-radius: var(--radius-md);
+      background: var(--brand);
+      color: var(--white);
+      font-size: 17px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      outline: none;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-btn);
+      transition: all 0.2s ease;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    .login-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0);
+      transition: background 0.15s ease;
+      border-radius: inherit;
+    }
+
+    .login-btn:not(.disabled):active::before {
+      background: rgba(0, 0, 0, 0.1);
+    }
+
+    .login-btn:not(.disabled):active {
+      transform: scale(0.98);
+      box-shadow: 0 1px 4px rgba(7, 193, 96, 0.2);
+    }
+
+    .login-btn.disabled {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    .login-btn .btn-text {
+      position: relative;
+      z-index: 1;
+      transition: opacity 0.2s ease;
+    }
+
+    .login-btn .btn-loading {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    .login-btn.loading .btn-text {
+      opacity: 0;
+    }
+
+    .login-btn.loading .btn-loading {
+      opacity: 1;
+    }
+
+    .spinner {
+      width: 22px;
+      height: 22px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top-color: var(--white);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ========== Confirmation Modal (Inner) ========== */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.25s ease, visibility 0.25s ease;
+    }
+
+    .modal-overlay.visible {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal {
+      width: 100%;
+      max-width: 280px;
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      transform: scale(0.85);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .modal-overlay.visible .modal {
+      transform: scale(1);
+      opacity: 1;
+    }
+
+    .modal-header {
+      padding: 26px 24px 10px;
+      text-align: center;
+    }
+
+    .modal-title {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .modal-body {
+      padding: 4px 24px 22px;
+      text-align: center;
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+
+    .modal-body .modal-link {
+      color: var(--text-link);
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    .modal-body .modal-link:active {
+      opacity: 0.7;
+    }
+
+    .modal-footer {
+      display: flex;
+      border-top: 0.5px solid rgba(0, 0, 0, 0.08);
+    }
+
+    .modal-btn {
+      flex: 1;
+      height: 48px;
+      border: none;
+      background: none;
+      font-size: 17px;
+      cursor: pointer;
+      outline: none;
+      transition: background 0.15s ease;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    .modal-btn:first-child {
+      color: var(--text-secondary);
+      border-right: 0.5px solid rgba(0, 0, 0, 0.08);
+    }
+
+    .modal-btn:last-child {
+      color: var(--brand);
+      font-weight: 500;
+    }
+
+    .modal-btn:active {
+      background: rgba(0, 0, 0, 0.04);
+    }
+
+    /* ========== Toast ========== */
+    .toast {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.8);
+      background: rgba(0, 0, 0, 0.78);
+      color: var(--white);
+      padding: 16px 28px;
+      border-radius: var(--radius-md);
+      font-size: 15px;
+      z-index: 300;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.25s cubic-bezier(0.34, 1.2, 0.64, 1);
+      text-align: center;
+      max-width: 80%;
+      pointer-events: none;
+    }
+
+    .toast.visible {
+      opacity: 1;
+      visibility: visible;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    .toast-icon {
+      width: 36px;
+      height: 36px;
+      margin: 0 auto 10px;
+    }
+
+    .toast-icon svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* ========== Loading Overlay ========== */
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(255, 255, 255, 0.85);
+      z-index: 250;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.2s ease, visibility 0.2s ease;
+    }
+
+    .loading-overlay.visible {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(0, 0, 0, 0.06);
+      border-top-color: var(--brand);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    .loading-text {
+      font-size: 15px;
+      color: var(--text-secondary);
+    }
+
+    /* ========== Login Success State ========== */
+    .login-card.success {
+      padding: 40px 28px;
+    }
+
+    .card-success {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .login-card.success .card-success {
+      display: flex;
+    }
+
+    .login-card.success .card-header,
+    .login-card.success .agreement-row,
+    .login-card.success .login-btn,
+    .login-card.success .login-close {
+      display: none;
+    }
+
+    .success-icon {
+      width: 52px;
+      height: 52px;
+      margin-bottom: 14px;
+    }
+
+    .success-icon svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .success-title {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .success-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Simulated Background Page -->
+  <div class="bg-page">
+    <div class="bg-page-content">
+      <svg viewBox="0 0 24 24" fill="none">
+        <rect x="3" y="3" width="18" height="18" rx="4" fill="#07C160" opacity="0.3"/>
+        <path d="M8 12.5l2.5 2.5L16 9.5" stroke="#07C160" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.3"/>
+      </svg>
+      <p>业务页面</p>
+    </div>
+  </div>
+
+  <!-- Login Popup Overlay -->
+  <div class="login-overlay" id="loginOverlay">
+    <div class="login-card" id="loginCard">
+
+      <!-- Close -->
+      <button class="login-close" id="loginClose" type="button" aria-label="关闭">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+
+      <!-- Header -->
+      <div class="card-header">
+        <div class="card-avatar">
+          <svg viewBox="0 0 24 24" fill="none">
+            <rect x="3" y="3" width="18" height="18" rx="4" fill="#07C160"/>
+            <path d="M8 12.5l2.5 2.5L16 9.5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="card-title">MBTI 性格测试</div>
+        <div class="card-desc">申请获取你的微信账号信息</div>
+      </div>
+
+      <!-- Agreement -->
+      <div class="agreement-row">
+        <div class="checkbox-wrapper" id="agreementCheckbox" role="checkbox" aria-checked="false">
+          <div class="checkbox-icon">
+            <svg viewBox="0 0 12 12" fill="none">
+              <path d="M2.5 6L5 8.5L9.5 3.5" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+        <div class="agreement-text">
+          阅读并同意<a class="agreement-link" href="privacy.html">用户隐私协议</a>
+        </div>
+      </div>
+
+      <!-- Login Button -->
+      <button class="login-btn" id="loginBtn" type="button">
+        <span class="btn-text">一键登录</span>
+        <span class="btn-loading"><span class="spinner"></span></span>
+      </button>
+
+      <!-- Success State (hidden by default) -->
+      <div class="card-success" id="cardSuccess">
+        <div class="success-icon">
+          <svg viewBox="0 0 52 52" fill="none">
+            <circle cx="26" cy="26" r="25" stroke="#07C160" stroke-width="2"/>
+            <path d="M16 26.5l7 7 13-14" stroke="#07C160" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="success-title">登录成功</div>
+        <div class="success-desc">正在进入…</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Confirmation Modal -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal" role="dialog" aria-modal="true">
+      <div class="modal-header">
+        <div class="modal-title">温馨提示</div>
+      </div>
+      <div class="modal-body">
+        阅读并同意<a class="modal-link" href="privacy.html">用户隐私协议</a>
+      </div>
+      <div class="modal-footer">
+        <button class="modal-btn" id="btnDisagree" type="button">不同意</button>
+        <button class="modal-btn" id="btnAgree" type="button">同意</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-spinner"></div>
+    <div class="loading-text" id="loadingText">正在拉起微信授权…</div>
+  </div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      // ========== DOM Elements ==========
+      var loginOverlay = document.getElementById('loginOverlay');
+      var loginCard = document.getElementById('loginCard');
+      var loginClose = document.getElementById('loginClose');
+      var checkbox = document.getElementById('agreementCheckbox');
+      var loginBtn = document.getElementById('loginBtn');
+      var modalOverlay = document.getElementById('modalOverlay');
+      var btnDisagree = document.getElementById('btnDisagree');
+      var btnAgree = document.getElementById('btnAgree');
+      var loadingOverlay = document.getElementById('loadingOverlay');
+      var loadingText = document.getElementById('loadingText');
+      var toast = document.getElementById('toast');
+      var toastIcon = document.getElementById('toastIcon');
+      var toastText = document.getElementById('toastText');
+      var cardSuccess = document.getElementById('cardSuccess');
+
+      // ========== State ==========
+      var isAgreed = false;
+      var isLoggingIn = false;
+      var toastTimer = null;
+
+      // ========== Show Login Popup on Load ==========
+      setTimeout(function () {
+        loginOverlay.classList.add('visible');
+      }, 300);
+
+      // ========== Close Login Popup ==========
+      function closeLogin() {
+        if (isLoggingIn) return;
+        loginOverlay.classList.remove('visible');
+      }
+
+      loginClose.addEventListener('click', closeLogin);
+
+      loginOverlay.addEventListener('click', function (e) {
+        if (e.target === loginOverlay) {
+          closeLogin();
+        }
+      });
+
+      // ========== Checkbox Toggle ==========
+      function toggleAgreement() {
+        isAgreed = !isAgreed;
+        if (isAgreed) {
+          checkbox.classList.add('checked');
+          checkbox.setAttribute('aria-checked', 'true');
+        } else {
+          checkbox.classList.remove('checked');
+          checkbox.setAttribute('aria-checked', 'false');
+        }
+      }
+
+      checkbox.addEventListener('click', function (e) {
+        e.stopPropagation();
+        toggleAgreement();
+      });
+
+      // ========== Confirmation Modal ==========
+      function showModal() {
+        modalOverlay.classList.add('visible');
+      }
+
+      function hideModal() {
+        modalOverlay.classList.remove('visible');
+      }
+
+      btnDisagree.addEventListener('click', function () {
+        hideModal();
+      });
+
+      btnAgree.addEventListener('click', function () {
+        hideModal();
+        isAgreed = true;
+        checkbox.classList.add('checked');
+        checkbox.setAttribute('aria-checked', 'true');
+        startLogin();
+      });
+
+      modalOverlay.addEventListener('click', function (e) {
+        if (e.target === modalOverlay) {
+          hideModal();
+        }
+      });
+
+      // ========== Toast ==========
+      function showToast(iconSvg, message, duration) {
+        if (toastTimer) clearTimeout(toastTimer);
+        toastIcon.innerHTML = iconSvg;
+        toastText.textContent = message;
+        toast.classList.add('visible');
+
+        toastTimer = setTimeout(function () {
+          toast.classList.remove('visible');
+        }, duration || 2000);
+      }
+
+      // ========== Login Flow ==========
+      function startLogin() {
+        if (isLoggingIn) return;
+        isLoggingIn = true;
+        loginBtn.classList.add('loading', 'disabled');
+
+        loadingText.textContent = '正在拉起微信授权…';
+        loadingOverlay.classList.add('visible');
+
+        setTimeout(function () {
+          loadingText.textContent = '登录中…';
+        }, 1000);
+
+        setTimeout(function () {
+          loadingOverlay.classList.remove('visible');
+          loginBtn.classList.remove('loading', 'disabled');
+
+          loginCard.classList.add('success');
+
+          // Auto dismiss after success
+          setTimeout(function () {
+            loginOverlay.classList.remove('visible');
+            setTimeout(function () {
+              loginCard.classList.remove('success');
+              loginBtn.querySelector('.btn-text').textContent = '一键登录';
+              isAgreed = false;
+              checkbox.classList.remove('checked');
+              checkbox.setAttribute('aria-checked', 'false');
+              isLoggingIn = false;
+            }, 400);
+          }, 1800);
+        }, 2200);
+      }
+
+      // ========== Login Button Click ==========
+      loginBtn.addEventListener('click', function () {
+        if (isLoggingIn) return;
+
+        if (!isAgreed) {
+          showModal();
+          return;
+        }
+
+        startLogin();
+      });
+
+    })();
+  </script>
+</body>
+</html>

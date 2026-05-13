@@ -1,4 +1,6 @@
 const express = require("express");
+const adminRoutes = require("./routes/admin");
+const authRoutes = require("./routes/auth");
 const assessmentRoutes = require("./routes/assessment");
 const reportRoutes = require("./routes/report");
 const { AppError } = require("./utils/errors");
@@ -8,6 +10,7 @@ function createApp() {
   const app = express();
 
   app.use(express.json());
+  app.use(express.urlencoded({ extended: false }));
 
   app.use((req, res, next) => {
     req.requestId = createRequestId();
@@ -21,6 +24,8 @@ function createApp() {
     });
   });
 
+  app.use(adminRoutes);
+  app.use(authRoutes);
   app.use(assessmentRoutes);
   app.use(reportRoutes);
 

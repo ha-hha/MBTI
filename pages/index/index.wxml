@@ -5,7 +5,7 @@
   <view wx:if="{{loading}}" class="loading-card card reveal-up">
     <view class="card-wash"></view>
     <view class="kicker">MBTI HUMAN PREMIUM</view>
-    <view class="loading-title">正在为你准备测试入口</view>
+    <view class="loading-title">正在为你准备测评入口</view>
     <view class="loading-copy">测评配置、题库和结果说明正在同步，马上就能开始。</view>
   </view>
 
@@ -26,7 +26,7 @@
           <view class="kicker">AI CAREER UPGRADE</view>
           <view class="status-pill">
             <view class="status-dot"></view>
-            <text>2026 职业升级版</text>
+            <text>2026 职业升级特辑</text>
           </view>
         </view>
 
@@ -49,7 +49,7 @@
         <view class="story-panel">
           <view class="story-head">
             <view class="story-title">为什么值得做这次测试</view>
-            <view class="story-note">信息会更直接，也更接近真实职业场景</view>
+            <view class="story-note">信息会更直接，也更贴近真实职业场景</view>
           </view>
 
           <swiper
@@ -72,7 +72,7 @@
         </view>
 
         <view class="cta-panel">
-          <view class="button-primary cta" bindtap="startAssessment">开始测试</view>
+          <view class="button-primary cta" bindtap="startAssessment">开始测评</view>
           <view class="button-secondary" bindtap="openHistory">查看历史记录</view>
         </view>
       </view>
@@ -108,4 +108,76 @@
       </view>
     </view>
   </block>
+
+  <view wx:if="{{phoneAuthVisible}}" class="modal-mask" catchtouchmove="noop">
+    <view class="login-card card reveal-up">
+      <view class="login-close" bindtap="closePhoneAuthModal">
+        <text class="login-close-icon">×</text>
+      </view>
+
+      <view class="login-avatar">
+        <view class="login-avatar-mark">AI</view>
+      </view>
+      <view class="login-title">MBTI 性格测试</view>
+      <view class="login-desc">申请获取你的微信账号信息</view>
+
+      <view class="agreement-row">
+        <view
+          class="agreement-check {{agreementChecked ? 'agreement-check-active' : ''}}"
+          bindtap="toggleAgreement"
+        >
+          <text wx:if="{{agreementChecked}}" class="agreement-check-icon">✓</text>
+        </view>
+        <view class="agreement-text">
+          阅读并同意
+          <text class="agreement-link" bindtap="openPrivacyGuide">《用户隐私协议》</text>
+        </view>
+      </view>
+
+      <view wx:if="{{phoneAuthError}}" class="phone-auth-error">{{phoneAuthError}}</view>
+
+      <button
+        wx:if="{{agreementChecked}}"
+        class="button-primary login-action"
+        open-type="getPhoneNumber"
+        loading="{{phoneAuthSubmitting}}"
+        bindtap="markAgreementAccepted"
+        bindgetphonenumber="onGetPhoneNumber"
+      >
+        一键登录
+      </button>
+      <button
+        wx:else
+        class="button-primary login-action"
+        loading="{{phoneAuthSubmitting}}"
+        bindtap="handleLoginClick"
+      >
+        一键登录
+      </button>
+
+      <view class="login-secondary" bindtap="closePhoneAuthModal">暂不登录</view>
+    </view>
+
+    <view wx:if="{{confirmModalVisible}}" class="confirm-mask" catchtouchmove="noop">
+      <view class="confirm-card card reveal-up">
+        <view class="confirm-title">温馨提示</view>
+        <view class="confirm-copy">
+          阅读并同意
+          <text class="agreement-link" bindtap="openPrivacyGuide">《用户隐私协议》</text>
+        </view>
+        <view class="confirm-actions">
+          <view class="confirm-btn cancel" bindtap="closeConfirmModal">不同意</view>
+          <button
+            class="confirm-btn confirm"
+            open-type="getPhoneNumber"
+            loading="{{phoneAuthSubmitting}}"
+            bindtap="markAgreementAccepted"
+            bindgetphonenumber="onGetPhoneNumber"
+          >
+            同意并继续
+          </button>
+        </view>
+      </view>
+    </view>
+  </view>
 </view>

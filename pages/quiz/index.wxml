@@ -5,7 +5,7 @@
   <view wx:if="{{loading}}" class="loading-card card reveal-up">
     <view class="card-wash"></view>
     <view class="kicker">ASSESSMENT LOADING</view>
-    <view class="loading-title">正在加载题目</view>
+    <view class="loading-title">正在加载测评题目</view>
     <view class="loading-copy">本轮测评的问题与进度信息正在同步，请稍候。</view>
   </view>
 
@@ -29,7 +29,7 @@
         </view>
 
         <view class="progress-foot">
-          <view class="progress-foot-copy">还剩 {{remainingCount}} 题，继续保持直觉作答会更准确。</view>
+          <view class="progress-foot-copy">还剩 {{remainingCount}} 题，按第一反应作答会更接近真实偏好。</view>
           <view class="progress-foot-copy">{{progressPercent}}%</view>
         </view>
       </view>
@@ -46,7 +46,7 @@
 
         <view class="choice-guide">
           <view class="choice-guide-title">作答建议</view>
-          <view class="choice-guide-copy">请选择更符合第一反应的一项，不必追求“标准答案”。</view>
+          <view class="choice-guide-copy">请选择更符合你第一反应的一项，不必刻意追求标准答案。</view>
         </view>
 
         <view class="options">
@@ -67,14 +67,95 @@
             </view>
           </view>
         </view>
+
+        <view wx:if="{{currentIndex === config.questionCount - 1}}" class="submit-note">
+          请在授权成功后查看您的测评报告
+        </view>
       </view>
 
       <view class="action-row reveal-up delay-2">
-        <view class="button-secondary nav-btn {{currentIndex === 0 ? 'nav-btn-disabled' : ''}}" bindtap="prevQuestion">上一题</view>
+        <view
+          class="button-secondary nav-btn {{currentIndex === 0 || submitting || phoneAuthSubmitting ? 'nav-btn-disabled' : ''}}"
+          bindtap="prevQuestion"
+        >
+          上一题
+        </view>
         <view class="button-primary nav-btn" bindtap="nextQuestion">
-          {{currentIndex === config.questionCount - 1 ? (submitting ? '提交中...' : '提交答卷') : '下一题'}}
+          {{currentIndex === config.questionCount - 1 ? (submitting ? '正在生成报告...' : '生成报告') : '下一题'}}
         </view>
       </view>
     </view>
   </block>
+</view>
+
+<view wx:if="{{phoneAuthVisible}}" class="modal-mask" catchtouchmove="noop">
+  <view class="login-card card reveal-up">
+    <view class="login-close" bindtap="closePhoneAuthModal">
+      <text class="login-close-icon">×</text>
+    </view>
+
+    <view class="login-avatar">
+      <view class="login-avatar-mark">AI</view>
+    </view>
+    <view class="login-title">MBTI 性格测试</view>
+    <view class="login-desc">完成手机号授权后，即可生成并查看你的测评报告。</view>
+
+    <view class="agreement-row">
+      <view
+        class="agreement-check {{agreementChecked ? 'agreement-check-active' : ''}}"
+        bindtap="toggleAgreement"
+      >
+        <text wx:if="{{agreementChecked}}" class="agreement-check-icon">✓</text>
+      </view>
+      <view class="agreement-text">
+        阅读并同意
+        <text class="agreement-link" bindtap="openPrivacyGuide">《数智化人才能力测评 小程序隐私保护指引》</text>
+      </view>
+    </view>
+
+    <view wx:if="{{phoneAuthError}}" class="phone-auth-error">{{phoneAuthError}}</view>
+
+    <button
+      wx:if="{{agreementChecked}}"
+      class="button-primary login-action"
+      open-type="getPhoneNumber"
+      loading="{{phoneAuthSubmitting}}"
+      bindtap="markAgreementAccepted"
+      bindgetphonenumber="onGetPhoneNumber"
+    >
+      一键登录
+    </button>
+    <button
+      wx:else
+      class="button-primary login-action"
+      loading="{{phoneAuthSubmitting}}"
+      bindtap="handleLoginClick"
+    >
+      一键登录
+    </button>
+
+    <view class="login-secondary" bindtap="closePhoneAuthModal">暂不授权</view>
+  </view>
+
+  <view wx:if="{{confirmModalVisible}}" class="confirm-mask" catchtouchmove="noop">
+    <view class="confirm-card card reveal-up">
+      <view class="confirm-title">温馨提示</view>
+      <view class="confirm-copy">
+        阅读并同意
+        <text class="agreement-link" bindtap="openPrivacyGuide">《数智化人才能力测评 小程序隐私保护指引》</text>
+      </view>
+      <view class="confirm-actions">
+        <view class="confirm-btn cancel" bindtap="closeConfirmModal">不同意</view>
+        <button
+          class="confirm-btn confirm"
+          open-type="getPhoneNumber"
+          loading="{{phoneAuthSubmitting}}"
+          bindtap="markAgreementAccepted"
+          bindgetphonenumber="onGetPhoneNumber"
+        >
+          同意并继续
+        </button>
+      </view>
+    </view>
+  </view>
 </view>

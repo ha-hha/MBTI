@@ -68,6 +68,7 @@ function resolveBackendPath(targetPath, fallbackPath) {
 }
 
 module.exports = {
+  host: process.env.HOST || "127.0.0.1",
   port: parseInteger(process.env.PORT, 3000),
   dbPath: resolveBackendPath(process.env.DB_PATH, "data/mbti.sqlite"),
   reportDelayMs: parseInteger(process.env.REPORT_DELAY_MS, 1800),
@@ -86,4 +87,12 @@ module.exports = {
     process.env.LLM_SYSTEM_PROMPT_PATH,
     "prompts/report-system-prompt.md"
   ),
+  wechatAppId: process.env.WECHAT_APP_ID || "",
+  wechatAppSecret: process.env.WECHAT_APP_SECRET || "",
+  sessionTokenTtlDays: parseInteger(process.env.SESSION_TOKEN_TTL_DAYS, 30),
+  wechatApiTimeoutMs: parseInteger(process.env.WECHAT_API_TIMEOUT_MS, 8000),
+  adminUsername: process.env.ADMIN_USERNAME || "",
+  adminPasswordHash: (process.env.ADMIN_PASSWORD_HASH || "").trim().toLowerCase(),
+  adminSessionSecret: process.env.ADMIN_SESSION_SECRET || "",
+  adminSessionTtlDays: parseInteger(process.env.ADMIN_SESSION_TTL_DAYS, 7),
 };

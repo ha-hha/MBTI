@@ -81,7 +81,12 @@
       <view wx:if="{{consultingCard}}" class="card consult-card reveal-up delay-2">
         <view class="card-wash"></view>
         <view class="consult-content">
-          <image class="consult-qr" src="{{consultingCard.qrCode}}" mode="aspectFill"></image>
+          <image
+            class="consult-qr"
+            src="{{consultingCard.qrCode}}"
+            mode="aspectFit"
+            show-menu-by-longpress="{{true}}"
+          ></image>
           <view class="consult-copy-wrap">
             <view class="section-kicker">CAIE CONSULTANT</view>
             <view class="consult-title">{{consultingCard.title}}</view>
@@ -129,11 +134,21 @@
         <view class="card-wash"></view>
         <view class="brand-grid">
           <view class="brand-column">
-            <image class="brand-qr" src="{{bottomBrandCard.consultantQr}}" mode="aspectFill"></image>
+            <image
+              class="brand-qr"
+              src="{{bottomBrandCard.consultantQr}}"
+              mode="aspectFit"
+              show-menu-by-longpress="{{true}}"
+            ></image>
             <view class="brand-note">添加注册人工智能工程师 CAIE 官方顾问</view>
           </view>
           <view class="brand-column">
-            <image class="brand-qr" src="{{bottomBrandCard.miniProgramCode}}" mode="aspectFill"></image>
+            <image
+              class="brand-qr"
+              src="{{bottomBrandCard.miniProgramCode}}"
+              mode="aspectFit"
+              show-menu-by-longpress="{{true}}"
+            ></image>
             <view class="brand-note">{{bottomBrandCard.miniProgramCopy}}</view>
           </view>
         </view>

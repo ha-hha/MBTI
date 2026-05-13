@@ -43,15 +43,20 @@ function getRequestHeaders() {
   };
 }
 
-function request({ url, method = "GET", data }) {
+async function request({ url, method = "GET", data, requireAuth = true }) {
+  const apiBaseUrl = getApiBaseUrl();
+
+  if (!apiBaseUrl) {
+    throw new Error("API_BASE_URL_NOT_CONFIGURED");
+  }
+
+  const app = getApp();
+
+  if (requireAuth && app && typeof app.ensureAuthenticated === "function") {
+    await app.ensureAuthenticated();
+  }
+
   return new Promise((resolve, reject) => {
-    const apiBaseUrl = getApiBaseUrl();
-
-    if (!apiBaseUrl) {
-      reject(new Error("API_BASE_URL_NOT_CONFIGURED"));
-      return;
-    }
-
     wx.request({
       url: `${apiBaseUrl}${url}`,
       method,
@@ -67,6 +72,14 @@ function request({ url, method = "GET", data }) {
           return;
         }
 
+        if (
+          res.statusCode === 401 &&
+          app &&
+          typeof app.clearAuthSession === "function"
+        ) {
+          app.clearAuthSession();
+        }
+
         reject(res.data || new Error("REQUEST_FAILED"));
       },
       fail(error) {
@@ -80,7 +93,10 @@ function getAssessment(assessmentId) {
   if (isMockEnabled()) {
     return mockBackend.getAssessment(assessmentId);
   }
-  return request({ url: `/assessment/${assessmentId}` });
+  return request({
+    url: `/assessment/${assessmentId}`,
+    requireAuth: false,
+  });
 }
 
 function submitAssessment(assessmentId, answers) {
@@ -94,6 +110,7 @@ function submitAssessment(assessmentId, answers) {
       assessmentId,
       answers,
     },
+    requireAuth: true,
   });
 }
 
@@ -101,7 +118,10 @@ function getReport(recordId) {
   if (isMockEnabled()) {
     return mockBackend.getReport(recordId);
   }
-  return request({ url: `/report/${recordId}` });
+  return request({
+    url: `/report/${recordId}`,
+    requireAuth: true,
+  });
 }
 
 function getRecords(assessmentId, page = 1, pageSize = 20) {
@@ -110,6 +130,7 @@ function getRecords(assessmentId, page = 1, pageSize = 20) {
   }
   return request({
     url: `/assessment/${assessmentId}/records?page=${page}&pageSize=${pageSize}`,
+    requireAuth: true,
   });
 }
 

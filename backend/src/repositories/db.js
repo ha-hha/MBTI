@@ -63,6 +63,36 @@ function initDb() {
       FOREIGN KEY (assessment_id) REFERENCES assessments (id)
     );
 
+    CREATE TABLE IF NOT EXISTS users (
+      user_id TEXT PRIMARY KEY,
+      openid TEXT NOT NULL UNIQUE,
+      phone_number TEXT,
+      phone_country_code TEXT,
+      phone_bound_at TEXT,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      last_login_at TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS user_sessions (
+      session_token TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      last_used_at TEXT NOT NULL,
+      expires_at TEXT NOT NULL,
+      FOREIGN KEY (user_id) REFERENCES users (user_id)
+    );
+
+    CREATE TABLE IF NOT EXISTS admin_sessions (
+      session_token_hash TEXT PRIMARY KEY,
+      username TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      last_used_at TEXT NOT NULL,
+      expires_at TEXT NOT NULL
+    );
+
     CREATE TABLE IF NOT EXISTS mbti_report_cache (
       assessment_id TEXT NOT NULL,
       mbti_type TEXT NOT NULL,
@@ -83,11 +113,21 @@ function initDb() {
     CREATE INDEX IF NOT EXISTS idx_records_user_assessment_created
     ON assessment_records (user_id, assessment_id, created_at DESC);
 
+    CREATE INDEX IF NOT EXISTS idx_users_openid
+    ON users (openid);
+
+    CREATE INDEX IF NOT EXISTS idx_sessions_user_expires
+    ON user_sessions (user_id, expires_at DESC);
+
+    CREATE INDEX IF NOT EXISTS idx_admin_sessions_expires
+    ON admin_sessions (expires_at DESC);
+
     CREATE INDEX IF NOT EXISTS idx_report_cache_assessment_mbti
     ON mbti_report_cache (assessment_id, mbti_type);
   `);
 
   ensureAssessmentRecordColumns(db);
+  ensureUserColumns(db);
 
   return db;
 }
@@ -114,6 +154,28 @@ function ensureAssessmentRecordColumns(db) {
       db.exec(`ALTER TABLE assessment_records ADD COLUMN ${definition}`);
     }
   });
+}
+
+function ensureUserColumns(db) {
+  const columnDefinitions = [
+    "phone_number TEXT",
+    "phone_country_code TEXT",
+    "phone_bound_at TEXT",
+  ];
+
+  columnDefinitions.forEach((definition) => {
+    const [columnName] = definition.split(" ");
+
+    if (!hasColumn(db, "users", columnName)) {
+      db.exec(`ALTER TABLE users ADD COLUMN ${definition}`);
+    }
+  });
+
+  db.exec(`
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_users_phone_number_unique
+    ON users (phone_number)
+    WHERE phone_number IS NOT NULL
+  `);
 }
 
 module.exports = {

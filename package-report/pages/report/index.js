@@ -1,9 +1,11 @@
-const api = require("../../services/api");
+const api = require("../../../services/api");
 
-const MBTI_IMAGE_ROOT = "/assets/mbti";
-const CONSULTANT_QR = "/assets/brand/caie-qrcode.png";
-const MINI_PROGRAM_CODE = "/assets/brand/miniprogram-code.png";
-const COMPANY_LOGO = "/assets/brand/logo.png";
+const CONSULTANT_QR = "/package-report/assets/brand/caie-qrcode.png";
+const MINI_PROGRAM_CODE = "/package-report/assets/brand/miniprogram-code.png";
+const COMPANY_LOGO = "/package-report/assets/brand/logo.png";
+const DEFAULT_REMOTE_MBTI_IMAGE_ROOT = "https://mbti.pinggu.com/static/mbti";
+const DEFAULT_SHARE_THEME_TITLE = "MBTI职业性格测评";
+const DEFAULT_SHARE_REPORT_TITLE = "看清你在 AI 时代最有价值的人类溢价";
 
 function getAssessmentId() {
   const app = getApp();
@@ -11,19 +13,45 @@ function getAssessmentId() {
 }
 
 function getDefaultShareTitle() {
-  return "测测你的 MBTI 在 AI 时代能放大哪些价值";
+  return "MBTI职业性格测评";
+}
+
+function getMbtiImageRoot() {
+  const app = getApp();
+
+  if (app && typeof app.getRuntimeConfig === "function") {
+    const runtimeConfig = app.getRuntimeConfig();
+
+    if (runtimeConfig && runtimeConfig.assetBaseUrl) {
+      return `${runtimeConfig.assetBaseUrl}/static/mbti`;
+    }
+  }
+
+  return DEFAULT_REMOTE_MBTI_IMAGE_ROOT;
+}
+
+function getMbtiImage(mbtiType) {
+  if (!mbtiType) {
+    return "";
+  }
+
+  return `${getMbtiImageRoot()}/${mbtiType.toLowerCase()}.png`;
+}
+
+function encodeShareValue(value) {
+  return encodeURIComponent(value || "");
 }
 
 function buildActionSteps() {
   return [
     {
       index: "01",
-      title: "锁定你的护城河",
+      title: "锁定你的人类护城河",
       copy: "先识别报告里最不该被低价出售的判断力、洞察力与协作方式。",
     },
     {
       index: "02",
-      title: "让 AI 补你的短板",
+      title: "让 AI 补足你的短板",
       copy: "把重复整理、信息归纳与结构输出交给 AI，把人留给高价值决策。",
     },
     {
@@ -32,14 +60,6 @@ function buildActionSteps() {
       copy: "把性格资产继续落到岗位升级、专业认证与长期竞争力建设上。",
     },
   ];
-}
-
-function getMbtiImage(mbtiType) {
-  if (!mbtiType) {
-    return "";
-  }
-
-  return `${MBTI_IMAGE_ROOT}/${mbtiType.toLowerCase()}.png`;
 }
 
 function buildMbtiVisualCard(report) {
@@ -54,7 +74,7 @@ function buildConsultingCard() {
   return {
     qrCode: CONSULTANT_QR,
     title: "添加注册人工智能工程师 CAIE 官方顾问",
-    copy: "一对一沟通学习培训计划，开通 AI 学习之旅。",
+    copy: "一对一沟通学习培训计划，开启 AI 学习之旅。",
   };
 }
 
@@ -237,31 +257,62 @@ Page({
     });
   },
 
-  getShareTitle() {
+  getShareThemeTitle() {
     const { config, report } = this.data;
 
-    if (config && Array.isArray(config.shareCopyPool) && config.shareCopyPool.length) {
-      return config.shareCopyPool[0];
+    return (report && report.themeTitle)
+      || (config && config.themeTitle)
+      || DEFAULT_SHARE_THEME_TITLE;
+  },
+
+  getShareReportTitle() {
+    const { report } = this.data;
+
+    return (report && report.reportTitle) || DEFAULT_SHARE_REPORT_TITLE;
+  },
+
+  getShareTitle() {
+    const { report } = this.data;
+
+    if (report && report.mbtiType) {
+      return `${this.getShareThemeTitle()} · ${report.mbtiType}`;
     }
 
-    if (report && report.mbtiType && report.themeTitle) {
-      return `${report.mbtiType} · ${report.themeTitle}`;
+    return this.getShareThemeTitle() || getDefaultShareTitle();
+  },
+
+  getSharePath() {
+    const { report } = this.data;
+    const themeTitle = this.getShareThemeTitle();
+    const reportTitle = this.getShareReportTitle();
+    const mbtiType = report && report.mbtiType ? report.mbtiType : "";
+
+    return `/pages/share/index?themeTitle=${encodeShareValue(themeTitle)}&reportTitle=${encodeShareValue(reportTitle)}&mbtiType=${encodeShareValue(mbtiType)}`;
+  },
+
+  getShareImage() {
+    const { report } = this.data;
+
+    if (!report || !report.mbtiType) {
+      return "";
     }
 
-    return getDefaultShareTitle();
+    return getMbtiImage(report.mbtiType);
   },
 
   onShareAppMessage() {
     return {
       title: this.getShareTitle(),
-      path: "/pages/index/index",
+      path: this.getSharePath(),
+      imageUrl: this.getShareImage(),
     };
   },
 
   onShareTimeline() {
     return {
       title: this.getShareTitle(),
-      query: "",
+      query: this.getSharePath().split("?")[1] || "",
+      imageUrl: this.getShareImage(),
     };
   },
 });

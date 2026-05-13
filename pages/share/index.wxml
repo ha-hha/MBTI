@@ -1,0 +1,42 @@
+<view class="page share-page">
+  <view class="page-backdrop top"></view>
+  <view class="page-backdrop bottom"></view>
+
+  <view class="content-stack">
+    <view class="share-card card reveal-up">
+      <view class="card-wash"></view>
+
+      <view class="share-kicker">MBTI SHARE CARD</view>
+      <view class="share-title">{{themeTitle}}</view>
+      <view class="share-subtitle">{{reportTitle}}</view>
+
+      <view wx:if="{{mbtiType}}" class="type-pill">{{mbtiType}}</view>
+
+      <image
+        wx:if="{{mbtiImage}}"
+        class="share-hero-image"
+        src="{{mbtiImage}}"
+        mode="widthFix"
+        show-menu-by-longpress="{{true}}"
+      ></image>
+
+      <view class="point-list">
+        <view wx:for="{{highlightPoints}}" wx:key="*this" class="point-item">
+          <view class="point-dot"></view>
+          <view class="point-copy">{{item}}</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="cta-card card reveal-up delay-1">
+      <view class="card-wash"></view>
+      <view class="section-kicker">START YOUR TEST</view>
+      <view class="section-heading">打开完整测评，看到你的职业升级路径</view>
+      <view class="section-copy">继续完成 20 道题，即可获得专属 MBTI 深度报告。</view>
+
+      <button class="button-primary share-action" bindtap="startAssessment">立即开始测试</button>
+      <button class="button-secondary share-action" open-type="share">转发这张分享卡片</button>
+      <view class="share-link" bindtap="goHome">返回首页</view>
+    </view>
+  </view>
+</view>

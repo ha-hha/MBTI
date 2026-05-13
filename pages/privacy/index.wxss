@@ -1,0 +1,91 @@
+.privacy-card {
+  padding: 36rpx 30rpx 40rpx;
+}
+
+.privacy-title {
+  color: #163b40;
+  font-size: 40rpx;
+  line-height: 1.4;
+  font-weight: 700;
+  text-align: center;
+}
+
+.privacy-date {
+  margin-top: 12rpx;
+  color: #8aa0a3;
+  font-size: 22rpx;
+  text-align: center;
+}
+
+.privacy-section {
+  margin-top: 30rpx;
+}
+
+.privacy-section-title {
+  color: #163b40;
+  font-size: 30rpx;
+  line-height: 1.45;
+  font-weight: 700;
+}
+
+.privacy-paragraph {
+  margin-top: 16rpx;
+  color: #5a7478;
+  font-size: 26rpx;
+  line-height: 1.82;
+}
+
+.privacy-list {
+  margin-top: 14rpx;
+}
+
+.privacy-list-item {
+  display: flex;
+  gap: 14rpx;
+  align-items: flex-start;
+}
+
+.privacy-list-item + .privacy-list-item {
+  margin-top: 14rpx;
+}
+
+.privacy-list-dot {
+  width: 10rpx;
+  height: 10rpx;
+  margin-top: 14rpx;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #14b8a6 0%, #0369a1 100%);
+  flex-shrink: 0;
+}
+
+.privacy-list-copy {
+  color: #5a7478;
+  font-size: 26rpx;
+  line-height: 1.82;
+}
+
+.privacy-contact {
+  margin-top: 18rpx;
+  padding: 22rpx 24rpx;
+  border-radius: 24rpx;
+  background: linear-gradient(180deg, rgba(247, 252, 252, 1) 0%, rgba(255, 255, 255, 0.96) 100%);
+  border: 2rpx solid rgba(15, 118, 110, 0.08);
+}
+
+.privacy-contact-item {
+  color: #4f6c71;
+  font-size: 24rpx;
+  line-height: 1.76;
+}
+
+.privacy-contact-item + .privacy-contact-item {
+  margin-top: 8rpx;
+}
+
+.privacy-footer {
+  margin-top: 34rpx;
+  color: #8aa0a3;
+  font-size: 22rpx;
+  line-height: 1.7;
+  text-align: center;
+}

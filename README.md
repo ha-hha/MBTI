@@ -1,199 +1,180 @@
 # MBTI 小程序
 
-这是一个基于微信小程序的 MBTI 测评项目，当前已经包含：
+这是一个已完成首版上线收口的微信小程序项目，主题为 `MBTI 性格测试`。当前版本包含完整的小程序前端、Node.js 后端、SQLite 数据存储、微信登录与手机号绑定、报告生成链路，以及浏览器可访问的运营后台。
 
-- 完整前端主流程：首页、答题页、报告页、历史页
-- 本地可联调后端：配置接口、提交答卷、查询报告、历史记录
-- 报告生成双模式：模板模式、LLM 模式
-- 按 `MBTI 类型` 缓存报告，加快重复类型的返回速度
-- 报告页品牌化素材：MBTI 图片、顾问二维码、小程序码、机构 logo
+## 当前版本能力
 
-项目定位是微信小程序，不是普通 Web 页面工程。
+- 首页、答题页、报告页、历史记录页、分享页、隐私页
+- 报告页分包加载，避免主包体积超限
+- MBTI 类型图片走远程资源，不再打进小程序包
+- 报告生成支持 `template` 和 `llm` 两种模式
+- 按 `assessmentId + mbtiType` 做 16 型报告缓存
+- 微信登录、手机号绑定、退出登录
+- “先答题，后授权，再生成报告”的主流程
+- 浏览器运营后台：管理员登录、报告列表、报告详情、近 14 日趋势
 
 ## 目录说明
 
-- `pages/`：小程序页面
-- `services/api.js`：前端接口层，支持 mock / 真实接口切换
-- `app.js`：小程序运行时配置入口
-- `assets/brand/`：品牌素材、二维码、小程序码
-- `assets/mbti/`：16 型 MBTI 图片素材
+- `pages/`：主包页面
+- `package-report/`：报告页分包
+- `services/api.js`：前端接口层
+- `app.js`：小程序运行时配置与登录态管理
 - `utils/assessment-config.js`：测评配置与题库
 - `utils/report-generator.js`：本地模板报告生成逻辑
-- `backend/`：本地联调后端
-- `MBTI_backend_api_v1.md`：接口协议
-- `MBTI_PRD_v1.md`：产品需求文档
+- `server-assets/mbti/`：16 型 MBTI 远程图片源文件
+- `backend/`：后端服务
+- `MBTI_backend_api_v1.md`：接口文档
+- `MBTI_PRD_v1.md`：产品文档
 - `TEST_CHECKLIST.md`：联调与验收清单
 
-## 前端启动
+## 小程序页面结构
 
-1. 用微信开发者工具打开项目根目录：`d:\1work\MBTI`
-2. 选择测试号或游客模式
-3. 编译后运行小程序
+主包页面：
 
-## 当前运行配置
+- `pages/index/index`
+- `pages/privacy/index`
+- `pages/share/index`
+- `pages/quiz/index`
+- `pages/history/index`
 
-当前 [app.js](/d:/1work/MBTI/app.js:1) 默认是走真实本地后端：
+报告分包：
+
+- `package-report/pages/report/index`
+
+## 当前主流程
+
+1. 用户进入首页，可直接开始测评，不强制先登录。
+2. 用户完成 20 题作答后，点击生成报告。
+3. 若未绑定手机号，会在答题页弹出授权层。
+4. 授权成功后，前端再正式提交答卷。
+5. 报告页先进入 `pending`，再转为 `ready` 或 `failed`。
+6. 历史记录页仍要求已登录且已绑定手机号。
+
+补充说明：
+
+- 取消手机号授权时，当前页答案会保留，可再次尝试生成报告。
+- 退出登录后，仍可重新答题，但生成报告前需要再次完成授权。
+
+## 运行配置
+
+当前 [app.js](/abs/d:/1work/MBTI/app.js:1) 默认指向正式环境：
 
 ```js
 globalData: {
   assessmentId: "mbti_ai_value",
-  apiBaseUrl: "http://127.0.0.1:3000",
+  apiBaseUrl: "https://mbti.pinggu.com",
+  assetBaseUrl: "https://mbti.pinggu.com",
   useMock: false,
-  userId: "demo-user",
-  requestHeaders: {
-    "x-user-id": "demo-user",
-  },
+  userId: "",
+  requestHeaders: {},
 }
 ```
 
 说明：
 
-- `useMock: false`：默认不走 mock
-- `apiBaseUrl`：指向本地后端
-- `x-user-id`：当前本地联调用的简单用户标识
+- `apiBaseUrl`：后端 API 域名
+- `assetBaseUrl`：报告页远程素材域名
+- `useMock: false`：默认走真实后端
 
-## mock 与真实接口切换
+## Mock 与真实接口切换
 
-### mock 模式
-
-适合只看页面，不依赖后端。
-
-把 [app.js](/d:/1work/MBTI/app.js:1) 改成：
+只看前端页面时，可开启 mock：
 
 ```js
 globalData: {
   assessmentId: "mbti_ai_value",
   apiBaseUrl: "",
+  assetBaseUrl: "",
   useMock: true,
   userId: "",
   requestHeaders: {},
 }
 ```
 
-满足以下任一条件都会走 mock：
+以下任一条件满足都会进入 mock：
 
 - `useMock === true`
 - `apiBaseUrl` 为空
 
-### 真实接口模式
+## 前端启动方式
 
-适合前后端联调与验收。
+1. 用微信开发者工具打开项目根目录 `d:\1work\MBTI`
+2. 使用正式 `AppID` 或测试号编译
+3. 真机预览时确认 request 合法域名已配置为 `https://mbti.pinggu.com`
 
-先启动后端：
+## 报告页资源方案
 
-```powershell
-cd d:\1work\MBTI\backend
-npm.cmd install
-npm.cmd run db:init
-npm.cmd run dev
-```
+为解决小程序包体积限制，当前采用：
 
-然后保持 [app.js](/d:/1work/MBTI/app.js:1) 指向：
+- 报告页独立分包
+- MBTI 16 型图片远程加载
+- 顾问二维码、公司 logo、小程序码放在报告分包内
 
-```js
-apiBaseUrl: "http://127.0.0.1:3000"
-```
+远程 MBTI 图片访问口径：
 
-## 当前主流程
+- `https://mbti.pinggu.com/static/mbti/*.png`
 
-1. 首页加载测评配置并进入答题页
-2. 20 题完整作答后提交
-3. 报告页先进入 `pending`
-4. 后端完成生成后进入 `ready`
-5. 历史页可查看已生成记录
+## 运营后台
 
-当前报告页已经支持：
+后端内置了一个最小运营后台，可通过浏览器访问：
 
-- 顶部 MBTI 图片展示
-- 报告模块展示
-- 顾问二维码
-- 小程序码
-- 机构 logo 与说明
+- 登录页：`https://mbti.pinggu.com/admin/login`
+- 列表页：`https://mbti.pinggu.com/admin/reports`
 
-## 报告生成说明
+当前后台支持：
 
-后端支持两种报告生成模式：
+- 管理员登录
+- 测评记录列表
+- 报告详情
+- 今日报告数
+- 近 14 日报告趋势
+- 报告生成时间 / 注册时间排序
 
-- `template`：本地模板生成
-- `llm`：调用 OpenAI 兼容接口生成
-
-当前还保留了“实时生成”接口链路，同时增加了缓存机制：
-
-- 缓存维度：`assessmentId + mbtiType`
-- 命中缓存时，仍会先进入一次短暂 `pending`
-- 当前缓存命中时约 `1 秒` 后返回结果
-- 未命中缓存时，继续走实时生成链路
-
-如果希望把 `16` 种 MBTI 报告先批量写入缓存，可在后端目录执行：
-
-```powershell
-cd d:\1work\MBTI\backend
-npm.cmd run cache:warm
-```
-
-更完整说明见 [backend/README.md](/d:/1work/MBTI/backend/README.md:1)。
-
-## 如何判断前后端是否连通
-
-- 看 [app.js](/d:/1work/MBTI/app.js:1) 是否为 `useMock: false`
-- 看微信开发者工具 `Network` 是否请求了 `http://127.0.0.1:3000/...`
-- 看后端终端是否有对应接口访问日志
-
-如果页面正常显示、但没有真实网络请求，大概率还在走 mock。
-
-## 微信小程序联调注意事项
-
-- 开发者工具里可直接请求 `http://127.0.0.1:3000`
-- 真机联调时通常不能继续使用 `127.0.0.1`
-- 真机联调一般需要改成电脑局域网 IP，或可访问的 `https` 测试域名
-- 正式上线前需要配置微信合法域名
+详细说明见 [backend/README.md](/abs/d:/1work/MBTI/backend/README.md:1)。
 
 ## 后端接口
 
-当前前端依赖以下 4 个接口：
+当前前端主要依赖这些接口：
 
-- `GET /assessment/{id}`
-- `POST /assessment/{id}/submit`
-- `GET /report/{recordId}`
-- `GET /assessment/{id}/records`
+- `POST /auth/wx-login`
+- `GET /auth/me`
+- `POST /auth/wx-phone`
+- `POST /auth/logout`
+- `GET /assessment/:id`
+- `POST /assessment/:id/submit`
+- `GET /report/:recordId`
+- `GET /assessment/:id/records`
 
-详细协议见 [MBTI_backend_api_v1.md](/d:/1work/MBTI/MBTI_backend_api_v1.md:1)。
+## 素材说明
 
-## 素材目录
+报告页品牌素材：
 
-品牌素材统一放在：
+- `package-report/assets/brand/logo.png`
+- `package-report/assets/brand/caie-qrcode.png`
+- `package-report/assets/brand/miniprogram-code.png`
 
-- `assets/brand/logo.png`
-- `assets/brand/caie-qrcode.png`
-- `assets/brand/miniprogram-code.png`
+MBTI 图片源文件：
 
-MBTI 图片统一放在：
+- `server-assets/mbti/`
 
-- `assets/mbti/intj.png`
-- `assets/mbti/intp.png`
-- `assets/mbti/entj.png`
-- `assets/mbti/entp.png`
-- `assets/mbti/infj.png`
-- `assets/mbti/infp.png`
-- `assets/mbti/enfj.png`
-- `assets/mbti/enfp.png`
-- `assets/mbti/istj.png`
-- `assets/mbti/isfj.png`
-- `assets/mbti/estj.png`
-- `assets/mbti/esfj.png`
-- `assets/mbti/istp.png`
-- `assets/mbti/isfp.png`
-- `assets/mbti/estp.png`
-- `assets/mbti/esfp.png`
+## 联调与上线要点
+
+- 本地开发时，开发者工具可直连本地后端
+- 真机和正式环境必须使用 HTTPS 域名
+- 小程序前端改动不需要重启服务器，但需要重新编译并上传小程序版本
+- 后端改动需要同步到服务器并重启 `mbti-backend`
 
 ## 验收建议
 
-建议至少手动走一遍：
+建议至少手动回归以下流程：
 
-1. 首页成功加载配置
-2. 20 题可完整提交
-3. 报告页经历 `pending -> ready`
-4. 历史页出现新记录
-5. 报告页二维码、图片、logo 显示正常
+1. 首页正常加载配置
+2. 开始测评可直接进入答题页
+3. 第 20 题答完后才显示 100% 进度
+4. 未授权时点击生成报告会弹授权层
+5. 授权成功后进入报告页 `pending -> ready`
+6. 取消授权不丢失当前答案
+7. 历史记录页仍需登录后访问
+8. 报告图片、二维码、logo 正常展示
 
-完整清单见 [TEST_CHECKLIST.md](/d:/1work/MBTI/TEST_CHECKLIST.md:1)。
+详细清单见 [TEST_CHECKLIST.md](/abs/d:/1work/MBTI/TEST_CHECKLIST.md:1)。

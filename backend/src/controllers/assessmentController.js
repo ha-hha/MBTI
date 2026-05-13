@@ -1,10 +1,10 @@
-const env = require("../config/env");
 const assessmentService = require("../services/assessmentService");
+const authService = require("../services/authService");
 const reportService = require("../services/reportService");
 const { createError } = require("../utils/errors");
 
 function getUserId(req) {
-  return req.headers["x-user-id"] || env.defaultUserId;
+  return authService.resolveUserIdFromHeaders(req.headers);
 }
 
 function parsePagination(value, fallbackValue, maxValue) {

@@ -1,0 +1,56 @@
+<view class="page privacy-page">
+  <view class="page-backdrop top"></view>
+  <view class="page-backdrop bottom"></view>
+
+  <view class="content-stack">
+    <view class="card privacy-card reveal-up">
+      <view class="card-wash"></view>
+      <view class="privacy-title">数智化人才能力测评 小程序隐私保护指引</view>
+      <view class="privacy-date">更新日期：{{updateDate}}</view>
+
+      <view class="privacy-paragraph">
+        本指引是您与数智化人才能力测评小程序之间关于用户隐私保护所订立的说明。请您在使用本小程序前，仔细阅读并充分理解本指引的全部内容。
+      </view>
+
+      <block wx:for="{{sections}}" wx:for-item="section" wx:key="title">
+        <view class="privacy-section">
+          <view class="privacy-section-title">{{section.title}}</view>
+
+          <view
+            wx:for="{{section.paragraphs}}"
+            wx:for-item="paragraph"
+            wx:key="*this"
+            class="privacy-paragraph"
+          >
+            {{paragraph}}
+          </view>
+
+          <view wx:if="{{section.items && section.items.length}}" class="privacy-list">
+            <view
+              wx:for="{{section.items}}"
+              wx:for-item="privacyItem"
+              wx:key="*this"
+              class="privacy-list-item"
+            >
+              <view class="privacy-list-dot"></view>
+              <view class="privacy-list-copy">{{privacyItem}}</view>
+            </view>
+          </view>
+
+          <view wx:if="{{section.title === '七、联系我们'}}" class="privacy-contact">
+            <view
+              wx:for="{{contactItems}}"
+              wx:for-item="contactItem"
+              wx:key="*this"
+              class="privacy-contact-item"
+            >
+              {{contactItem}}
+            </view>
+          </view>
+        </view>
+      </block>
+
+      <view class="privacy-footer">{{footerNote}}</view>
+    </view>
+  </view>
+</view>

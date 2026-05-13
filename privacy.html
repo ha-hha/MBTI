@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>用户隐私协议</title>
+  <style>
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    :root {
+      --text-primary: #1a1a1a;
+      --text-secondary: #666;
+      --text-tertiary: #999;
+      --bg: #f6f6f6;
+      --white: #ffffff;
+      --border: rgba(0, 0, 0, 0.06);
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    html, body {
+      width: 100%;
+      min-height: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: var(--bg);
+      color: var(--text-primary);
+      font-size: 15px;
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ========== Navigation Bar ========== */
+    .nav-bar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      height: 44px;
+      padding-top: var(--safe-top);
+      background: var(--white);
+      border-bottom: 0.5px solid var(--border);
+    }
+
+    .nav-back {
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: opacity 0.15s ease;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    .nav-back:active {
+      opacity: 0.5;
+    }
+
+    .nav-back svg {
+      width: 22px;
+      height: 22px;
+    }
+
+    .nav-title {
+      flex: 1;
+      text-align: center;
+      font-size: 17px;
+      font-weight: 600;
+      margin-right: 44px;
+    }
+
+    /* ========== Content ========== */
+    .content {
+      background: var(--white);
+      padding: 24px 20px;
+      padding-bottom: calc(40px + var(--safe-bottom));
+    }
+
+    .content h1 {
+      font-size: 20px;
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: 8px;
+      color: var(--text-primary);
+    }
+
+    .content .update-date {
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-tertiary);
+      margin-bottom: 28px;
+    }
+
+    .content h2 {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-top: 28px;
+      margin-bottom: 12px;
+    }
+
+    .content p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.8;
+      margin-bottom: 12px;
+      text-align: justify;
+    }
+
+    .content .highlight {
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    .content ul {
+      padding-left: 20px;
+      margin-bottom: 12px;
+    }
+
+    .content ul li {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.8;
+      margin-bottom: 4px;
+    }
+
+    .content .contact-block {
+      background: #f8f8fa;
+      border-radius: 10px;
+      padding: 16px 20px;
+      margin-top: 20px;
+    }
+
+    .content .contact-block p {
+      margin-bottom: 4px;
+      font-size: 13px;
+    }
+
+    .content .contact-block p:last-child {
+      margin-bottom: 0;
+    }
+
+    .divider {
+      height: 0.5px;
+      background: var(--border);
+      margin: 24px 0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <div class="nav-bar">
+    <div class="nav-back" id="navBack" role="button" aria-label="返回">
+      <svg viewBox="0 0 24 24" fill="none">
+        <path d="M15 19l-7-7 7-7" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="nav-title">用户隐私协议</div>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+    <h1>用户隐私协议</h1>
+    <div class="update-date">更新日期：2026 年 5 月 11 日</div>
+
+    <p>本协议是您与数智化人才能力测评小程序（以下简称"本产品"）之间关于用户隐私保护所订立的协议。本产品由北京数信国准人才测评中心（以下简称"我们"）运营并提供服务。请您仔细阅读以下条款，在使用本产品前充分理解并同意本协议的全部内容。</p>
+
+    <h2>一、我们收集的信息</h2>
+    <p>为确保产品正常运行并为您提供相关服务，我们可能会收集以下信息：</p>
+    <ul>
+      <li><span class="highlight">微信授权信息：</span>在您同意的前提下，获取您的微信昵称、头像等公开信息，用于创建个人账户。</li>
+      <li><span class="highlight">测评数据：</span>您在使用数智化人才能力测评过程中产生的答题记录、能力评估结果及分析报告。</li>
+      <li><span class="highlight">设备信息：</span>包括设备型号、操作系统版本等，用于产品优化与兼容性适配。</li>
+      <li><span class="highlight">日志信息：</span>包括访问时间、页面浏览记录等技术日志，用于保障服务稳定性。</li>
+    </ul>
+
+    <h2>二、信息的使用</h2>
+    <p>我们收集的信息将用于以下目的：</p>
+    <ul>
+      <li>为您创建和管理个人账户，提供核心测试服务；</li>
+      <li>生成个性化的能力测评分析报告；</li>
+      <li>优化产品功能和用户体验；</li>
+      <li>保障产品安全和稳定运行；</li>
+      <li>在获得您明确同意后，用于其他扩展服务。</li>
+    </ul>
+
+    <h2>三、信息的存储与保护</h2>
+    <p>我们采用业界通行的安全技术手段保护您的个人信息，防止信息遭到未经授权的访问、披露、使用、修改或损毁。我们会采取合理可行的措施，尽力避免收集无关的个人信息。</p>
+    <p>我们只在为实现本协议中所述目的所必需的期限内保留您的个人信息。当超出必要保留期限后，我们将对您的个人信息进行删除或匿名化处理。</p>
+
+    <h2>四、信息的共享</h2>
+    <p>我们承诺不会将您的个人信息出售给任何第三方。仅在以下情况下，我们可能会共享您的个人信息：</p>
+    <ul>
+      <li>事先获得您的明确同意；</li>
+      <li>根据法律法规的要求或政府主管部门的强制性要求；</li>
+      <li>为维护本产品及其他用户的安全与合法权益所合理必需的情形。</li>
+    </ul>
+
+    <h2>五、您的权利</h2>
+    <p>您对您的个人信息享有以下权利：</p>
+    <ul>
+      <li><span class="highlight">访问权：</span>您有权访问您的个人信息；</li>
+      <li><span class="highlight">更正权：</span>如发现信息有误，您有权要求更正；</li>
+      <li><span class="highlight">删除权：</span>您可以请求我们删除您的个人信息；</li>
+      <li><span class="highlight">撤回同意：</span>您可以随时撤回此前给予的授权同意。</li>
+    </ul>
+
+    <h2>六、未成年人保护</h2>
+    <p>我们非常重视对未成年人个人信息的保护。如果您是未满 18 周岁的未成年人，请在监护人的陪同和指导下使用本产品，并在监护人明确同意后向我们提供相关信息。</p>
+
+    <div class="divider"></div>
+
+    <h2>七、联系我们</h2>
+    <p>如您对本隐私协议有任何疑问、意见或建议，可通过以下方式与我们取得联系：</p>
+
+    <div class="contact-block">
+      <p>产品名称：数智化人才能力测评</p>
+      <p>运营主体：北京数信国准人才测评中心</p>
+    </div>
+
+    <p style="margin-top: 24px; color: var(--text-tertiary); font-size: 13px; text-align: center;">本协议自您同意之日起生效，最终解释权归本产品所有。</p>
+  </div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      var navBack = document.getElementById('navBack');
+
+      navBack.addEventListener('click', function () {
+        if (document.referrer && window.history.length > 1) {
+          window.history.back();
+        } else {
+          window.location.href = 'login.html';
+        }
+      });
+
+    })();
+  </script>
+</body>
+</html>

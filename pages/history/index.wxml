@@ -7,7 +7,10 @@
       <view class="card-wash"></view>
       <view class="header-top">
         <view class="kicker">HISTORY</view>
-        <view class="archive-count">{{items.length}} 份记录</view>
+        <view class="header-actions">
+          <view class="archive-count">{{items.length}} 份记录</view>
+          <view class="logout-link" bindtap="handleLogout">退出登录</view>
+        </view>
       </view>
       <view class="title history-title">历史测评结果</view>
       <view class="subtitle history-copy">每次生成过的 MBTI 结果都会留在这里，方便你回看和复盘。</view>
@@ -35,8 +38,8 @@
       <view class="card-wash"></view>
       <view class="empty-mark">00</view>
       <view class="empty-title">还没有测评记录</view>
-      <view class="empty-copy">完成一次测试后，你的历史结果就会出现在这里。</view>
-      <view class="button-primary empty-action" bindtap="startAssessment">开始第一次测试</view>
+      <view class="empty-copy">完成一次测评后，你的历史结果就会出现在这里。</view>
+      <view class="button-primary empty-action" bindtap="startAssessment">开始第一次测评</view>
     </view>
 
     <view wx:else class="record-list">
